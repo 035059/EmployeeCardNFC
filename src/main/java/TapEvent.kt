@@ -22,30 +22,39 @@
  * SOFTWARE.
  */
 
-import java.io.File
-
-fun main(args: Array<String>) {
-
-    val fileName = "data.txt"
-
-    val file = File(fileName)
-
-    // create a new file
-    val isNewFileCreated: Boolean = file.createNewFile()
-
-    if (isNewFileCreated) {
-        println("$fileName is created successfully.")
-    } else {
-        println("$fileName already exists.")
-    }
-
-    // try creating a file that already exists
-    val isFileCreated: Boolean = file.createNewFile()
-
-    if (isFileCreated) {
-        println("$fileName is created successfully.")
-    } else {
-        println("$fileName already exists.")
-    }
+data class TapEvent(val csvLine: String) {
+    var time: Int
+        get() = 0
+        set(value) = TODO()
+    var activity: String
+        get() = ""
+        set(value) = TODO()
+    var panel: String
+        get() = ""
+        set(value) = TODO()
+    var panelLocation: String
+        get() = ""
+        set(value) = TODO()
+    var mod: String
+        get() = ""
+        set(value) = TODO()
+    var door: String
+        get() = ""
+        set(value) = TODO()
+    var doorLocation: String
+        get() = ""
+        set(value) = TODO()
+    var pin: String
+        get() = ""
+        set(value) = TODO()
+    var cardNum: String
+        get() = ""
+        set(value) = TODO()
+    var lastName: String
+        get() = ""
+        set(value) = TODO()
+    var firstName: String
+        get() = ""
+        set(value) = TODO()
 
 }
