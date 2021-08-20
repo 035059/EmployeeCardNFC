@@ -13,9 +13,9 @@ to be tied into the same
 
 ## Project Roadmap
 
-The plan for delivering Windows Terminal
-2.0 [is described here](https://github.com/035059/EmployeeCardNFC/doc/project-roadmap.md) and will be updated as the
-project proceeds.
+The plan for delivering the employee time card system
+[is described here](https://github.com/035059/EmployeeCardNFC/doc/project-roadmap.md)
+and will be updated as the project proceeds.
 
 ## Project Build Status
 
@@ -25,12 +25,7 @@ Please take a few minutes to review the overview below before diving into the co
 
 ### Main - Time manager
 
-Windows Terminal is a new, modern, feature-rich, productive terminal application for command-line users. It includes
-many of the features most frequently requested by the Windows command-line community including support for tabs, rich
-text, globalization, configurability, theming & styling, and more.
-
-The Terminal will also need to meet our goals and measures to ensure it remains fast and efficient, and doesn't consume
-vast amounts of memory or power.
+WHAT IS THIS THING, explain need
 
 ### Editor
 
@@ -90,7 +85,7 @@ If you would like to ask a question that you feel doesn't warrant an issue
 
 ## Building the Code
 
-MAKE CODE HAPPEN HERE
+HOW TO MAKE CODE HAPPEN HERE
 
 ### Building in PowerShell
 
