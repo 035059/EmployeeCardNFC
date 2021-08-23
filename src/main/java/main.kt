@@ -53,17 +53,34 @@ fun main(args: Array<String>) {
 
     // "Time","Activity","Panel","Panel Location","Mod","Door","Door Location","PIN","Card #","Last Name","First Name"
 
+    val tapEvents = mutableListOf<TapEvent>()
+
     for (csvRecord in csvParser) {
-        // Accessing values by the names assigned to each column
         if (csvRecord.recordNumber > 14) {
-            val firstName = csvRecord.get("First Name")
-            val lastName = csvRecord.get("Last Name")
-            val time = csvRecord.get("Time")
-            println("Record No - " + (csvRecord.recordNumber - 14))
-            println("---------------")
-            println("Name : $firstName $lastName")
-            println("Time of Tap Event : $time")
-            println("---------------\n")
+            tapEvents.add(
+                TapEvent(
+                    csvRecord.get("Time"),
+                    csvRecord.get("Activity"),
+                    csvRecord.get("Panel"),
+                    csvRecord.get("Panel Location"),
+                    csvRecord.get("Mod"),
+                    csvRecord.get("Door"),
+                    csvRecord.get("Door Location"),
+                    csvRecord.get("PIN"),
+                    csvRecord.get("Card #"),
+                    csvRecord.get("Last Name"),
+                    csvRecord.get("First Name")
+                )
+            )
         }
     }
+
+    for (tapEvent in tapEvents) {
+        println("------------------------------------")
+        println("Name: ${tapEvent.firstName} ${tapEvent.lastName}")
+        println("Tap time: ${tapEvent.time}")
+        println("Location: ${tapEvent.doorLocation}")
+        println("------------------------------------")
+    }
+    println(tapEvents.size)
 }

@@ -22,39 +22,16 @@
  * SOFTWARE.
  */
 
-data class TapEvent(val csvLine: String) {
-    var time: Int
-        get() = 0
-        set(value) = TODO()
-    var activity: String
-        get() = ""
-        set(value) = TODO()
-    var panel: String
-        get() = ""
-        set(value) = TODO()
-    var panelLocation: String
-        get() = ""
-        set(value) = TODO()
-    var mod: String
-        get() = ""
-        set(value) = TODO()
-    var door: String
-        get() = ""
-        set(value) = TODO()
-    var doorLocation: String
-        get() = ""
-        set(value) = TODO()
-    var pin: String
-        get() = ""
-        set(value) = TODO()
-    var cardNum: String
-        get() = ""
-        set(value) = TODO()
-    var lastName: String
-        get() = ""
-        set(value) = TODO()
+data class TapEvent(
+    var time: String,
+    var activity: String,
+    var panel: String,
+    var panelLocation: String,
+    var mod: String,
+    var door: String,
+    var doorLocation: String,
+    var pin: String,
+    var cardNum: String,
+    var lastName: String,
     var firstName: String
-        get() = ""
-        set(value) = TODO()
-
-}
+)
