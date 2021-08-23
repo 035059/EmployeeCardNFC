@@ -22,65 +22,10 @@
  * SOFTWARE.
  */
 
-import org.apache.commons.csv.CSVFormat
-import org.apache.commons.csv.CSVParser
-import java.nio.file.Files
-import java.nio.file.Paths
-
 fun main(args: Array<String>) {
     val filePath = "data/report.csv"
-    // read the file
-    val reader = Files.newBufferedReader(Paths.get(filePath))
-    // parse the file into csv values
-    val csvParser = CSVParser(
-        reader, CSVFormat.DEFAULT
-            .withHeader(
-                "Time",
-                "Activity",
-                "Panel",
-                "Panel Location",
-                "Mod",
-                "Door",
-                "Door Location",
-                "PIN",
-                "Card #",
-                "Last Name",
-                "First Name"
-            )
-            .withIgnoreHeaderCase()
-            .withTrim()
-    )
 
-    // "Time","Activity","Panel","Panel Location","Mod","Door","Door Location","PIN","Card #","Last Name","First Name"
-
-    val tapEvents = mutableListOf<TapEvent>()
-
-    for (csvRecord in csvParser) {
-        if (csvRecord.recordNumber > 14) {
-            tapEvents.add(
-                TapEvent(
-                    csvRecord.get("Time"),
-                    csvRecord.get("Activity"),
-                    csvRecord.get("Panel"),
-                    csvRecord.get("Panel Location"),
-                    csvRecord.get("Mod"),
-                    csvRecord.get("Door"),
-                    csvRecord.get("Door Location"),
-                    csvRecord.get("PIN"),
-                    csvRecord.get("Card #"),
-                    csvRecord.get("Last Name"),
-                    csvRecord.get("First Name")
-                )
-            )
-        }
-    }
-
-    for (tapEvent in tapEvents) {
-        println("------------------------------------")
-        println("Name: ${tapEvent.firstName} ${tapEvent.lastName}")
-        println("Tap time: ${tapEvent.time}")
-        println("Location: ${tapEvent.doorLocation}")
-        println("------------------------------------")
-    }
-    println(tapEvents.size)
+    val data = CSVData(filePath)
+    data.parse()
+    println(data.eventsList())
 }
