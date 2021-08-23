@@ -51,7 +51,7 @@ import java.nio.file.Paths
  * SOFTWARE.
  */
 
-class CSVData(private val filePath: String) {
+class CSVData(filePath: String) {
     // read the file
     private val reader = Files.newBufferedReader(Paths.get(filePath))
 
@@ -102,8 +102,8 @@ class CSVData(private val filePath: String) {
     }
 
     fun eventsList(): String {
-        var toRet: String = ""
-        for (tapEvent in tapEvents) {
+        var toRet = ""
+        tapEvents.forEach { tapEvent ->
             toRet += "------------------------------------\n"
             toRet += "Name: ${tapEvent.firstName} ${tapEvent.lastName}\n"
             toRet += "Tap time: ${tapEvent.time}\n"
