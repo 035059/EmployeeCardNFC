@@ -29,6 +29,13 @@ fun main(args: Array<String>) {
     data.parse()
 //    println(data.eventsList())
 
-    var test = Shift("nIgHt")
-    println(test.get())
+    val allin = Employee()
+    allin.firstName = "Allin"
+    allin.lastName = "Demopolis"
+    allin.empID = 8651
+    allin.shift = "day"
+
+
+    println(allin.getShiftNum())
+
 }

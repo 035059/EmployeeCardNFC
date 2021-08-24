@@ -22,7 +22,4 @@
  * SOFTWARE.
  */
 
-class WeekendShift(shift: Shift) : Employee(shift) {
-
-
-}
+class WeekendShift(employee: Employee) : DayShift(employee)

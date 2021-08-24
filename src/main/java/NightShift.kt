@@ -22,7 +22,4 @@
  * SOFTWARE.
  */
 
-class NightShift(shift: Shift) : Employee(shift) {
-
-
-}
+class NightShift(employee: Employee) : DayShift(employee)

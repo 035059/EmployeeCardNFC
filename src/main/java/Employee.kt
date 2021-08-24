@@ -22,6 +22,19 @@
  * SOFTWARE.
  */
 
-open class Employee(shift: Shift) {
+class Employee {
+    var firstName: String = ""
+    var lastName: String = ""
+    var empID: Int = 0
+    var shift: String = ""
 
+    private val types = listOf("day", "night", "weekend", "five day")
+
+    fun getShiftNum(): Int {
+        return types.indexOf(shift.lowercase())
+    }
+
+    fun getShiftName(): String {
+        return if (types.contains(shift)) shift.lowercase() else "Bad shift assignment"
+    }
 }

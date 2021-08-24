@@ -22,11 +22,14 @@
  * SOFTWARE.
  */
 
-class Shift(private val type: String) {
-    private val types = mutableListOf("day", "night", "weekend")
+open class DayShift(shift: Employee) {
 
-    @Override
-    fun get(): Int {
-        return types.indexOf(type.lowercase())
+    private val employeeID = 0
+    private val numStd = 40                 // Mo   Tu   We   Th   Fr   Sa   Su
+    private val dailyHrs: List<Int> = listOf(10, 10, 10, 10, 0, 0, 0)
+    private var hours = mutableListOf(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+
+    fun setHours(hoursToday: Double, day: Int) {
+        this.hours[day] = hoursToday
     }
 }

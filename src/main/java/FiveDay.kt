@@ -22,7 +22,4 @@
  * SOFTWARE.
  */
 
-class FiveDay(shift: Shift) : Employee(shift) {
-
-
-}
+class FiveDay(employee: Employee) : DayShift(employee)
