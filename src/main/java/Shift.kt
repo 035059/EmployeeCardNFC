@@ -22,17 +22,11 @@
  * SOFTWARE.
  */
 
-data class TapEvent(
-    var date: String,
-    var time: String,
-    var activity: String,
-    var panel: String,
-    var panelLocation: String,
-    var mod: String,
-    var door: String,
-    var doorLocation: String,
-    var pin: String,
-    var cardNum: String,
-    var lastName: String,
-    var firstName: String
-)
+class Shift(private val type: String) {
+    private val types = mutableListOf("day", "night", "weekend")
+
+    @Override
+    fun get(): Int {
+        return types.indexOf(type.lowercase())
+    }
+}

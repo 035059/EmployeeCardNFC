@@ -22,17 +22,7 @@
  * SOFTWARE.
  */
 
-data class TapEvent(
-    var date: String,
-    var time: String,
-    var activity: String,
-    var panel: String,
-    var panelLocation: String,
-    var mod: String,
-    var door: String,
-    var doorLocation: String,
-    var pin: String,
-    var cardNum: String,
-    var lastName: String,
-    var firstName: String
-)
+class FiveDay(shift: Shift) : Employee(shift) {
+
+
+}

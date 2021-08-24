@@ -27,5 +27,8 @@ fun main(args: Array<String>) {
 
     val data = CSVData(filePath)
     data.parse()
-    println(data.eventsList())
+//    println(data.eventsList())
+
+    var test = Shift("nIgHt")
+    println(test.get())
 }

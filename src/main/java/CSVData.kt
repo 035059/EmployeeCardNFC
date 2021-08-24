@@ -27,30 +27,6 @@ import org.apache.commons.csv.CSVParser
 import java.nio.file.Files
 import java.nio.file.Paths
 
-/*
- * MIT License
- *
- * Copyright (c) 2021 Allin Demopolis
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 class CSVData(filePath: String) {
     // read the file
     private val reader = Files.newBufferedReader(Paths.get(filePath))
@@ -84,7 +60,8 @@ class CSVData(filePath: String) {
             if (csvRecord.recordNumber > 14) {
                 tapEvents.add(
                     TapEvent(
-                        csvRecord.get("Time"),
+                        csvRecord.get("Time").split(" ")[0],
+                        csvRecord.get("Time").split(" ")[1],
                         csvRecord.get("Activity"),
                         csvRecord.get("Panel"),
                         csvRecord.get("Panel Location"),
@@ -106,7 +83,7 @@ class CSVData(filePath: String) {
         tapEvents.forEach { tapEvent ->
             toRet += "------------------------------------\n"
             toRet += "Name: ${tapEvent.firstName} ${tapEvent.lastName}\n"
-            toRet += "Tap time: ${tapEvent.time}\n"
+            toRet += "Tap time: ${tapEvent.time} on ${tapEvent.date}\n"
             toRet += "Location: ${tapEvent.doorLocation}\n"
             toRet += "------------------------------------\n"
         }
