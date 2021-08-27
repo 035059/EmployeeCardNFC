@@ -22,8 +22,6 @@
  * SOFTWARE.
  */
 
-import java.awt.EventQueue
-
 /*
  * MIT License
  *
@@ -47,31 +45,25 @@ import java.awt.EventQueue
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+class CardDataIn {
+    var idBuf = ByteArray(32)
+    var idRaw: Long = 0
+    var id: Long = 0
+    var fac: Long = 0
+    var i = 0
+    var bits: Short = GetActiveID(idBuf, sizeof(idBuf)) // or GetActiveID32
 
-fun main(args: Array<String>) {
-
-    //TODO modify to get data from multiple files
-    val filePath = "data/report.csv"
-
-    val data = CSVData(filePath)
-    data.parse()
-
-    //TODO create employees from data variable
-
-    // Test employee to show usage
-    val allin = Employee()
-    allin.firstName = "Allin"
-    allin.lastName = "Demopolis"
-    allin.empID = 8651
-    allin.shift = "day"
-
-
-    println(allin.getShiftName())
-
-
-    val windowTitle = "Test"
-    val window = RaspiAccess(windowTitle)
-    window.isAlwaysOnTop = true
-    EventQueue.invokeLater(::createAndShowGUI)
-
+    init {
+        // Convert BYTE array to long [0]= MSB..[n]=LSB
+        i = 0
+        while (i < (bits + 7) / 8) {
+            idRaw = idRaw shl 8 or idBuf[i].toLong()
+            i++
+        }
+        id = idRaw shr 1 // Remove Trailing parity
+        id = idRaw and 0x065535L
+        fac = idRaw shr 17
+        fac = fac and 0x0255L
+        println("Card Bits=$bits, FAC=$fac, ID=$id")
+    }
 }

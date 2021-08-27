@@ -68,14 +68,13 @@ class RaspiAccess(title: String) : JFrame() {
 
     private inner class ButtonClickListener : ActionListener {
         override fun actionPerformed(e: ActionEvent) {
-            val actionOutput = when (e.actionCommand) {
-                "IN" -> "Employee Sign In"
-                "OUT" -> "Employee Sign Out"
-                "Supervisor Login" -> "Supervisor has logged in"
-                "No ID Card" -> "Employee missing ID card"
-                else -> "IDFK man, something's f'ed"
+            when (e.actionCommand) {
+                "IN" -> CardDataIn()
+                "OUT" -> println("Employee Sign Out")
+                "Supervisor Login" -> println("Supervisor has logged in")
+                "No ID Card" -> println("Employee missing ID card")
+                else -> println("IDK man, something's dicked")
             }
-            println(actionOutput)
         }
     }
 

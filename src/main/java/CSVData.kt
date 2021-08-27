@@ -78,6 +78,14 @@ class CSVData(filePath: String) {
         }
     }
 
+    fun genEmployees(): MutableList<Employee> {
+        var toRet = mutableListOf<Employee>()
+        tapEvents.forEach() {
+            toRet.add(Employee())
+        }
+        return toRet
+    }
+
     fun eventsList(): String {
         var toRet = ""
         tapEvents.forEach { tapEvent ->

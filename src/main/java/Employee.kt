@@ -28,6 +28,13 @@ class Employee {
     var empID: Int = 0
     var shift: String = ""
 
+    fun Employee(firstName: String, lastName: String, empID: Int, shift: String) {
+        this.firstName = firstName
+        this.lastName = lastName
+        this.empID = empID
+        this.shift = shift
+    }
+
     private val types = listOf("day", "night", "weekend", "five day")
 
     fun getShiftNum(): Int {
