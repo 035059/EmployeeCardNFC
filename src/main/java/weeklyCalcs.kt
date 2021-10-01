@@ -719,6 +719,33 @@ fun sendEmail() {
     email.send() //send the email
 }
 
+fun makeNewWorkbook(){
+    val columns1 =
+        arrayOf("cardID", "Name", "empNum", "Status", "Shift", "Time", "Date")
+
+    val xlWb = XSSFWorkbook() //create a workbook with name xlWb
+    val sheet1 = xlWb.createSheet() //create sheet1 withing the workbook
+
+    //create rows to be filled by headers
+    val headerRow1 = sheet1.createRow(0)
+
+    //go through header list and set them as the sheet headers
+    for (col in columns1.indices) {
+        val cell = headerRow1.createCell(col)
+        cell.setCellValue(columns1[col])
+        sheet1.autoSizeColumn(col)
+    }
+
+    val today = LocalDate.now().toString()
+
+    //save the file to this location
+    val output = FileOutputStream("C:/Users/ophillips/Desktop/$today.xlsx") //TODO update file location
+    xlWb.write(output)
+
+    //close the workbook
+    xlWb.close()
+}
+
 fun weeklyCalcs (){
 
     val data = readExcelWeek()
@@ -739,6 +766,7 @@ fun weeklyCalcs (){
 
     makeExcel()
     sendEmail()
+    makeNewWorkbook()
 
     println("EMAIL SENT")
 
