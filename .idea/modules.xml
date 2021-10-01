@@ -2,6 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/TimeCardCalcs/TimeCardCalcs.iml" filepath="$PROJECT_DIR$/TimeCardCalcs/TimeCardCalcs.iml" />
+      <module fileurl="file://$PROJECT_DIR$/TimeCardDailyCheck/TimeCardDailyCheck.iml" filepath="$PROJECT_DIR$/TimeCardDailyCheck/TimeCardDailyCheck.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/TimeCardProject.iml" filepath="$PROJECT_DIR$/.idea/TimeCardProject.iml" />
     </modules>
   </component>

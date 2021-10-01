@@ -24,27 +24,53 @@
 
 import java.awt.Color
 import java.awt.Dimension
+import java.awt.EventQueue
 import java.awt.Font
 import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
 import javax.swing.GroupLayout
 import javax.swing.JButton
 import javax.swing.JFrame
+import javax.swing.JLabel
 
-class RaspiAccess(title: String) : JFrame() {
+class questionAdd(title: String, ID: String, status: String) : JFrame() {
 
     init {
-        createUI(title)
+        createUI(title, ID, status)
     }
 
-    private fun createUI(title: String) {
+    private fun createUI(title: String, ID: String, status: String) {
 
         val catYellow = Color(240, 184, 35)
-        val stdCols = arrayOf<Color>(catYellow, catYellow, Color.green, Color.red)
+        val stdCols = arrayOf<Color>(catYellow, catYellow)
 
-        val names = listOf("No ID Card", "Supervisor Login", "IN", "OUT")
+        val names = listOf("Yes", "No")
         val width = IntArray(4) { 375 }
-        val height = intArrayOf(60, 60, 240, 240)
+        val height = intArrayOf(240, 240)
+
+        val label = JLabel("ID not in Directory. Add to Directory?")
+        label.font = Font("Helvetica", Font.BOLD, 40)
+
+        class ButtonClickListener : ActionListener {
+            override fun actionPerformed(e: ActionEvent) {
+                when (e.actionCommand) {
+                    "Yes" -> { println("adding person")
+                        val windowTitle = "Test"
+                        val window = addPerson(windowTitle, ID, status)
+                        window.isAlwaysOnTop = true
+                        window.isVisible = true
+                        isVisible = false
+                        dispose()
+                    }
+                    "No" -> {
+                        isVisible = false
+                        dispose()
+                    }
+                    else -> println("IDK man, something's dicked")
+                }
+            }
+        }
+
 
         val buttons = stdCols.mapIndexed { index, color ->
             JButton().apply {
@@ -59,34 +85,15 @@ class RaspiAccess(title: String) : JFrame() {
             }
         }
 
-        createLayout(buttons)
+        createLayout(label, buttons)
 
         setTitle(title)
-        defaultCloseOperation = JFrame.EXIT_ON_CLOSE
+        //defaultCloseOperation = JFrame.EXIT_ON_CLOSE
         setLocationRelativeTo(null)
     }
 
-    private inner class ButtonClickListener : ActionListener {
-        override fun actionPerformed(e: ActionEvent) {
-            when (e.actionCommand) {
-                "IN" -> CardDataIn()
-                "OUT" -> CardDataOut()
-                "Supervisor Login" -> {
-                    val window = supervisorSignIn("Supervisor Sign-In")
-                    window.isAlwaysOnTop = true
-                    window.isVisible = true
-                }
-                "No ID Card" -> {
-                    val window = emailInput("Input Information")
-                    window.isAlwaysOnTop = true
-                    window.isVisible = true
-                }
-                else -> println("IDK man, something's dicked")
-            }
-        }
-    }
 
-    private fun createLayout(labels: List<JButton>) {
+    private fun createLayout(title: JLabel, labels: List<JButton>) {
 
         val gl = GroupLayout(contentPane)
         contentPane.layout = gl
@@ -94,42 +101,31 @@ class RaspiAccess(title: String) : JFrame() {
         gl.autoCreateContainerGaps = true
         gl.autoCreateGaps = true
 
-
         gl.setHorizontalGroup(
             gl.createParallelGroup()
                 .addGroup(
                     gl.createSequentialGroup()
-                        .addComponent(labels[0])
-                        .addComponent(labels[1])
+                        .addComponent(title)
                 )
                 .addGroup(
                     gl.createSequentialGroup()
-                        .addComponent(labels[2])
-                        .addComponent(labels[3])
+                        .addComponent(labels[0])
+                        .addComponent(labels[1])
                 )
         )
 
         gl.setVerticalGroup(
             gl.createSequentialGroup()
                 .addGroup(
-                    gl.createParallelGroup()
-                        .addComponent(labels[0])
-                        .addComponent(labels[1])
+                    gl.createSequentialGroup()
+                        .addComponent(title)
                 )
                 .addGroup(
                     gl.createParallelGroup()
-                        .addComponent(labels[2])
-                        .addComponent(labels[3])
+                        .addComponent(labels[0])
+                        .addComponent(labels[1])
                 )
         )
         pack()
     }
 }
-
-
-fun createAndShowGUI() {
-
-    val frame = RaspiAccess("User Access Window")
-    frame.isVisible = true
-}
-

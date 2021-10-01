@@ -1,7 +1,12 @@
+import com.sun.jna.Library
+import com.sun.jna.Native
+import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
+import java.io.File
+
 /*
  * MIT License
  *
- * Copyright (c) 2021 Allin Demopolis
+ * Copyright (c) 2021 Allin Dempoopolis
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -45,25 +50,134 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
+//function to read card data from reader (taken from RF IDeas SDK example)
+fun getActiveId32In(lib: CardDataIn.`SampleClass$Reader`): String {
+    val PRXDEVTYP_USB: Short = 0
+    lib.SetDevTypeSrch(PRXDEVTYP_USB)
+    if (lib.usbConnect() == 0) {
+        println("\nReader not connected")
+        return "0"
+    }
+    try {
+        Thread.sleep(250)
+    } catch (ex: InterruptedException) {
+        Thread.currentThread().interrupt()
+    }
+    val wBufMaxSz: Short = 32
+    val buf = ByteArray(wBufMaxSz.toInt())
+    val bits: Short = lib.GetActiveID32(buf, wBufMaxSz)
+    if (bits.toInt() == 0) {
+        val errorMessage = """
+            
+            No id found, Please put card on the reader and make sure it must be configured with the card placed on it.
+            """.trimIndent()
+        //println(errorMessage)
+        return "0"
+    } else {
+        var bytes_to_read = (bits + 7) / 8
+        if (bytes_to_read < 8) {
+            bytes_to_read = 8
+        }
+        //print("\n$bits Bits : ")
+        val numOut = arrayOf<String>("","","","","","","","") //initialize array of strings to be populated by buf data
+        for (i in bytes_to_read - 1 downTo 0) {
+            numOut[i] = String.format("%02x", buf[i])         //populate array with buf data (converted to hexidecimal)
+            //System.out.printf("%02X ", buf[i])
+        }
+        val cardIDString = "${numOut[7]}${numOut[6]}${numOut[5]}${numOut[4]}${numOut[3]}${numOut[2]}${numOut[1]}${numOut[0]}" //create a single string of buf data (card ID)
+        //var cardID: Int = cardIDString.toInt()
+        //println(cardIDString)
+        return cardIDString //return the card ID, all other options return "0" which works with the readCard function below
+    }
+    //lib.USBDisconnect()
+    //return bits.toInt()
+    //return cardID
+}
+
+//function used to call card reader for 3 seconds (buffer to allow for slow card tap)
+fun readCardIn(Lib: CardDataIn.`SampleClass$Reader`): String{
+    var j = 0
+    var Bits: String = "0"  //initialize bits variable (will read in data from card reader)
+    while (j < 12){         //do this for 12x250ms = 3s
+        Bits = getActiveId32In(Lib)  //get the card data
+        if (Bits == "0"){   //if there is no card, increase j and try again
+            j++
+        }
+        else {
+            return Bits    //if the card is read, return its ID and break from the while loop
+            j = 100
+        }
+    }
+    return Bits    //return whatever is left at the end (either the cardID or 0)
+}
+
+//go through the directory and look for card number
+fun checkDirectory(ID: String, status: String): String {
+    if (ID == "0"){
+        val window = commentOK("No Card Detected")
+        window.isAlwaysOnTop = true
+        window.isVisible = true
+        return "in list"
+    }
+    val file: File = File("src/main/java/Directory.csv") //load directory
+    val rows: List<List<String>> = csvReader().readAll(file)
+    for (i in 0 until (rows.size)){ //go through each row and compare ID numbers
+        if (rows[i][2] == ID){
+            writeToExcel(ID, rows[i][0], rows[i][1], status, rows[i][3])
+            return "in list"
+            break //if there is a match, break
+        }
+    }
+    return "not in list"
+}
+
+//add IDs to the directory
+fun addToDirectory(ID: String, directoryStatus: String, status: String): String{
+    if (directoryStatus == "in list"){ //do nothing if it's already in the directory
+        return "0"
+    }
+    else{
+        val windowTitle = "Add ID to Directory?" //otherwise, open a window asking if you want to add the ID to the directory
+        val window = questionAdd(windowTitle, ID, status)
+        window.isAlwaysOnTop = true
+        window.isVisible = true
+        return "1"
+    }
+}
+
+
 class CardDataIn {
+    //these were from the example and I havent deleted them yet
     var idBuf = ByteArray(32)
     var idRaw: Long = 0
     var id: Long = 0
     var fac: Long = 0
     var i = 0
-    var bits: Short = GetActiveID(idBuf, sizeof(idBuf)) // or GetActiveID32
 
-    init {
-        // Convert BYTE array to long [0]= MSB..[n]=LSB
-        i = 0
-        while (i < (bits + 7) / 8) {
-            idRaw = idRaw shl 8 or idBuf[i].toLong()
-            i++
-        }
-        id = idRaw shr 1 // Remove Trailing parity
-        id = idRaw and 0x065535L
-        fac = idRaw shr 17
-        fac = fac and 0x0255L
-        println("Card Bits=$bits, FAC=$fac, ID=$id")
+    //honestly idk what this does its from the sample code and it works (i think it creates a library of functions defined above but I only actually made a couple of them)
+    interface `SampleClass$Reader` : Library {
+        fun SetDevTypeSrch(var1: Short): Short
+        fun usbConnect(): Int
+        fun USBDisconnect(): Int
+        fun GetLUID(): Int
+        fun GetDevCnt(): Short
+        fun SetActDev(var1: Short): Short
+        val partNumberString: String?
+        fun GetVidPidVendorName(): String?
+        fun GetActiveID32(var1: ByteArray?, var2: Short): Short
+        fun GetLibVersion(var1: IntArray?, var2: IntArray?, var3: IntArray?): Short
     }
+
+    //read in the dll file from the RF IDeas SDK
+    var lib = Native.loadLibrary("lib" + "/" + "pcProxAPI.dll", `SampleClass$Reader`::class.java)
+
+    //call the readCard function and get either and ID or 0 back
+    var cardID: String = readCardIn(lib)
+
+    //check to see if ID is in the directory
+    var inDirectory: String = checkDirectory(cardID, "In")
+
+    //add card to the directory
+    var added: String = addToDirectory(cardID, inDirectory, "In")
 }

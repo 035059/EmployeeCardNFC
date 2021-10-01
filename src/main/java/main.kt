@@ -23,6 +23,10 @@
  */
 
 import java.awt.EventQueue
+import java.time.DayOfWeek
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 /*
  * MIT License
@@ -48,30 +52,35 @@ import java.awt.EventQueue
  * SOFTWARE.
  */
 
-fun main(args: Array<String>) {
-
+fun main() {
+/*
     //TODO modify to get data from multiple files
-    val filePath = "data/report.csv"
-
-    val data = CSVData(filePath)
-    data.parse()
-
-    //TODO create employees from data variable
-
-    // Test employee to show usage
-    val allin = Employee()
-    allin.firstName = "Allin"
-    allin.lastName = "Demopolis"
-    allin.empID = 8651
-    allin.shift = "day"
-
-
-    println(allin.getShiftName())
-
+*/
 
     val windowTitle = "Test"
     val window = RaspiAccess(windowTitle)
     window.isAlwaysOnTop = true
     EventQueue.invokeLater(::createAndShowGUI)
+
+
+    val startDayTime = LocalTime.parse("04:00:00", DateTimeFormatter.ISO_LOCAL_TIME)
+    val endDayTime = LocalTime.parse("04:00:05.02", DateTimeFormatter.ISO_LOCAL_TIME)
+
+    val startWeekTime = LocalTime.parse("02:00:00", DateTimeFormatter.ISO_LOCAL_TIME)
+    val endWeekTime = LocalTime.parse("02:00:05.02", DateTimeFormatter.ISO_LOCAL_TIME)
+
+    val i = 0
+    while (i<1){
+        val dateTime = LocalDateTime.now()
+        println(dateTime)
+
+        if((dateTime.toLocalTime().isAfter(startDayTime)) and (dateTime.toLocalTime().isBefore(endDayTime))){
+            dailyCalcs()
+        } else if ((dateTime.dayOfWeek == DayOfWeek.MONDAY) and (dateTime.toLocalTime().isAfter(startWeekTime)) and (dateTime.toLocalTime().isBefore(endWeekTime))){
+            weeklyCalcs()
+        }
+
+        Thread.sleep(5_000)
+    }
 
 }
