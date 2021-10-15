@@ -41,25 +41,25 @@ class emailInput(title: String) : JFrame(){
 
     private fun createUI(title: String) {
         val header = JLabel("Please Fill In the Following Information")
-        header.font = Font("Helvetica", Font.BOLD, 40)
+        header.font = Font("Helvetica", Font.BOLD, 30)
         val label1 = JLabel("Full Name")
-        label1.font = Font("Helvetica", Font.BOLD, 24)
+        label1.font = Font("Helvetica", Font.BOLD, 18)
         val label2 = JLabel("Employee Number")
-        label2.font = Font("Helvetica", Font.BOLD, 24)
+        label2.font = Font("Helvetica", Font.BOLD, 18)
         val label3 = JLabel("Sign-In or Sign-Out")
-        label3.font = Font("Helvetica", Font.BOLD, 24)
+        label3.font = Font("Helvetica", Font.BOLD, 18)
         val label4 = JLabel("Supervisor")
-        label4.font = Font("Helvetica", Font.BOLD, 24)
+        label4.font = Font("Helvetica", Font.BOLD, 18)
 
         val text1 = JTextField()
-        text1.font = Font("Helvetica", Font.PLAIN, 24)
+        text1.font = Font("Helvetica", Font.PLAIN, 18)
         val text2 = JTextField()
-        text2.font = Font("Helvetica", Font.PLAIN, 24)
+        text2.font = Font("Helvetica", Font.PLAIN, 18)
 
         val radio1 = JRadioButton("In")
-        radio1.font = Font("Helvetica", Font.PLAIN, 20)
+        radio1.font = Font("Helvetica", Font.PLAIN, 16)
         val radio2 = JRadioButton("Out")
-        radio2.font = Font("Helvetica", Font.PLAIN, 20)
+        radio2.font = Font("Helvetica", Font.PLAIN, 16)
 
         val bg = ButtonGroup()
         bg.add(radio1)
@@ -68,13 +68,13 @@ class emailInput(title: String) : JFrame(){
         val supervisors: Array<String> = arrayOf("", "Andrew Sibbald", "Bob Brkovich", "Bruce Hall", "Dan Pitre", "Guirgues Hanna", "Laith Khalil", "Mark Fratelli", "Mathieu Guimont", "Steve Linhardt")
         val supervisorEmails: Array<String> = arrayOf("", "ASibbald@toromont.com", "BBrkovich@toromont.com", "BHall@toromont.com", "DPitre@toromont.com", "GHanna@toromont.com", "LKhalil@toromont.com", "MFratelli@toromont.com", "MGuimont@toromont.com", "SLinhardt@toromont.com")
         val combo1 = JComboBox(supervisors)
-        combo1.font = Font("Helvetica", Font.PLAIN, 20)
+        combo1.font = Font("Helvetica", Font.PLAIN, 16)
 
         val stdCols = arrayOf<Color>(Color.green, Color.red)
 
         val names = listOf("Submit", "Exit")
         val width = IntArray(4) { 120 }
-        val height = intArrayOf(60, 60)
+        val height = intArrayOf(50, 50)
 
         class ButtonClickListener : ActionListener {
             override fun actionPerformed(e: ActionEvent) {
@@ -120,7 +120,7 @@ class emailInput(title: String) : JFrame(){
                 isResizable = true
                 actionCommand = names[index]
                 addActionListener(ButtonClickListener())
-                font = Font("Helvetica", Font.BOLD, 40)
+                font = Font("Helvetica", Font.BOLD, 30)
             }
         }
 

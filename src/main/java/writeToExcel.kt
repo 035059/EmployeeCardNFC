@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021 Allin Demopolis
+ * Copyright (c) 2021 Owen Phillips, Allin Demopolis
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -57,7 +57,7 @@ class writeToExcel(ID: String, name: String, empNum: String, status: String, shi
 
     private fun fillExcel(data: List<String>, excelFile: String){
         //create file stream to excel
-        val myxlsx = FileInputStream("C:/Users/ophillips/Documents/$excelFile.xlsx")   //TODO update to real doc location
+        val myxlsx = FileInputStream("/home/pi/Desktop/$excelFile.xlsx")   //TODO update to real doc location
 
         //set workbook and sheet to populate
         val workbook = XSSFWorkbook(myxlsx)
@@ -75,7 +75,7 @@ class writeToExcel(ID: String, name: String, empNum: String, status: String, shi
         myxlsx.close()
 
         //set a spot to save the file
-        val output_file = FileOutputStream("C:/Users/ophillips/Documents/$excelFile.xlsx")
+        val output_file = FileOutputStream("/home/pi/Desktop/$excelFile.xlsx")
 
         //save the file to this locaiton
         workbook.write(output_file)

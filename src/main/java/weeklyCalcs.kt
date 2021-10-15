@@ -1,3 +1,27 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2021 Owen Phillips, Allin Demopolis
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 import org.apache.commons.mail.EmailAttachment
 import org.apache.commons.mail.HtmlEmail
 import org.apache.poi.ss.usermodel.*
@@ -48,7 +72,7 @@ fun readExcelWeek(): MutableList<MutableList<String>>{
     var previousMonday: LocalDate = today.with(TemporalAdjusters.previous(DayOfWeek.MONDAY))
     var fileName = "${previousMonday}.xlsx"
 
-    val myxlsx = FileInputStream("C:/Users/ophillips/Documents/$fileName")
+    val myxlsx = FileInputStream("/home/pi/Desktop/$fileName")
 
     val workbook = XSSFWorkbook(myxlsx)
     val sheet = workbook.getSheetAt(0)
@@ -200,13 +224,6 @@ fun removeDuplicatesNight (inTime: MutableList<MutableList<Any>>, outTime: Mutab
         }
     }
 
-//    for (tap in outTime.lastIndex downTo 0){
-//        val date = LocalDateTime.parse(outTime[tap][5].toString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME).toLocalDate().toString()
-//        if (date !in outDates){
-//            outDates.add(date)
-//            outTimeF.add(outTime[tap])
-//        }
-//    }
 
 // instead of just checking date, check previous noon (12pm - 12pm instead of 12am - 12am)
     for (tap in outTime.lastIndex downTo 0){
@@ -252,75 +269,87 @@ fun dayShiftHours(name: String, empNum: String, data: MutableList<MutableList<An
 
     var latesCount: Int = 0
 
-    //go through the in and out time arrays
-    for (day in inTimeF.indices) {
-        //create date, time, and datetime for each event
-        val inDateTime = LocalDateTime.parse(inTimeF[day][5].toString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-        val outDateTime = LocalDateTime.parse(outTimeF[day][5].toString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-
-        //create a LocalDateTime value for overtime start based on the date and shift
-        val shiftStart1 = inDateTime.toLocalDate().toString() + " " + "05:45:00"
-        val shiftStart = LocalDateTime.parse(shiftStart1, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-
-        //create a LocalDateTime value for overtime start based on the date and shift
-        val otStart1 = inDateTime.toLocalDate().toString() + " " + "16:15:00"
-        val otStart = LocalDateTime.parse(otStart1, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-
-        //total hours is the length from in time to out time for each day
-        val totHoursDay: Float = ((ChronoUnit.MINUTES.between(inDateTime, outDateTime) - 30).toFloat()) / 60
-        totHours.add(totHoursDay)
-
-        //create a list of important values about this shift
-        val shift: MutableList<String> = mutableListOf(
+    if (inTimeF.size != outTimeF.size){
+        val week: List<String> = listOf(
             empNum,
             name,
             "Day",
-            inDateTime.toLocalDate().toString(),
-            inDateTime.toLocalTime().toString(),
-            outDateTime.toLocalDate().toString(),
-            outDateTime.toLocalTime().toString()
+            "Missed Tap Not Rectified",
+            "Missed Tap Not Rectified",
+            "Missed Tap Not Rectified",
+            "Missed Tap Not Rectified"
         )
+        weeklyHours.add(week)
+    } else {//go through the in and out time arrays
+        for (day in inTimeF.indices) {
+            //create date, time, and datetime for each event
+            val inDateTime = LocalDateTime.parse(inTimeF[day][5].toString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+            val outDateTime = LocalDateTime.parse(outTimeF[day][5].toString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME)
 
-        //calculate normal and overtime hours
-        if (outDateTime.isAfter(otStart)) { //if signed out after overtime start, normal is between in and otstart, ot is between otstart and out
-            val normHoursDay: Float = ((ChronoUnit.MINUTES.between(inDateTime, otStart) - 30).toFloat()) / 60
-            normHours.add(normHoursDay)
-            shift.add(quarterRound(normHoursDay.toDouble()).toString()) //add normal hours to shift info list
+            //create a LocalDateTime value for overtime start based on the date and shift
+            val shiftStart1 = inDateTime.toLocalDate().toString() + " " + "05:45:00"
+            val shiftStart = LocalDateTime.parse(shiftStart1, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
 
-            val otHoursDay: Float = (ChronoUnit.MINUTES.between(otStart, outDateTime).toFloat()) / 60
-            otHours.add(otHoursDay)
-            shift.add(quarterRound(otHoursDay.toDouble()).toString()) //add overtime hours to shift info list
-        } else { //shift ends before overtime starts, all hours are normal hours
-            val normHoursDay: Float = ((ChronoUnit.MINUTES.between(inDateTime, outDateTime) - 30).toFloat()) / 60
-            normHours.add(normHoursDay)
-            shift.add(quarterRound(normHoursDay.toDouble()).toString()) //add normal hours to shift info list
+            //create a LocalDateTime value for overtime start based on the date and shift
+            val otStart1 = inDateTime.toLocalDate().toString() + " " + "16:15:00"
+            val otStart = LocalDateTime.parse(otStart1, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
 
-            val otHoursDay = 0.0F
-            otHours.add(otHoursDay)
-            shift.add(quarterRound(otHoursDay.toDouble()).toString()) //add overtime hours to shift info list
+            //total hours is the length from in time to out time for each day
+            val totHoursDay: Float = ((ChronoUnit.MINUTES.between(inDateTime, outDateTime) - 30).toFloat()) / 60
+            totHours.add(totHoursDay)
+
+            //create a list of important values about this shift
+            val shift: MutableList<String> = mutableListOf(
+                empNum,
+                name,
+                "Day",
+                inDateTime.toLocalDate().toString(),
+                inDateTime.toLocalTime().toString(),
+                outDateTime.toLocalDate().toString(),
+                outDateTime.toLocalTime().toString()
+            )
+
+            //calculate normal and overtime hours
+            if (outDateTime.isAfter(otStart)) { //if signed out after overtime start, normal is between in and otstart, ot is between otstart and out
+                val normHoursDay: Float = ((ChronoUnit.MINUTES.between(inDateTime, otStart) - 30).toFloat()) / 60
+                normHours.add(normHoursDay)
+                shift.add(quarterRound(normHoursDay.toDouble()).toString()) //add normal hours to shift info list
+
+                val otHoursDay: Float = (ChronoUnit.MINUTES.between(otStart, outDateTime).toFloat()) / 60
+                otHours.add(otHoursDay)
+                shift.add(quarterRound(otHoursDay.toDouble()).toString()) //add overtime hours to shift info list
+            } else { //shift ends before overtime starts, all hours are normal hours
+                val normHoursDay: Float = ((ChronoUnit.MINUTES.between(inDateTime, outDateTime) - 30).toFloat()) / 60
+                normHours.add(normHoursDay)
+                shift.add(quarterRound(normHoursDay.toDouble()).toString()) //add normal hours to shift info list
+
+                val otHoursDay = 0.0F
+                otHours.add(otHoursDay)
+                shift.add(quarterRound(otHoursDay.toDouble()).toString()) //add overtime hours to shift info list
+            }
+            shift.add(quarterRound(totHoursDay.toDouble()).toString())
+
+            if (inDateTime.isAfter(shiftStart)) {
+                shift.add("Late")
+                latesCount++
+            } else {
+                shift.add("On Time")
+            }
+
+            shiftHours.add(shift) //add the shift list to the overall shiftHours directory
         }
-        shift.add(quarterRound(totHoursDay.toDouble()).toString())
-
-        if (inDateTime.isAfter(shiftStart)){
-            shift.add("Late")
-            latesCount ++
-        } else {
-            shift.add("On Time")
-        }
-
-        shiftHours.add(shift) //add the shift list to the overall shiftHours directory
+        //create a summary of this employee's total weekly hours
+        val week: List<String> = listOf(
+            empNum,
+            name,
+            "Day",
+            quarterRound(normHours.sum().toDouble()).toString(),
+            quarterRound(otHours.sum().toDouble()).toString(),
+            quarterRound(totHours.sum().toDouble()).toString(),
+            latesCount.toString()
+        )
+        weeklyHours.add(week) //add the week list to the overall weeklyHours directory
     }
-    //create a summary of this employee's total weekly hours
-    val week: List<String> = listOf(
-        empNum,
-        name,
-        "Day",
-        quarterRound(normHours.sum().toDouble()).toString(),
-        quarterRound(otHours.sum().toDouble()).toString(),
-        quarterRound(totHours.sum().toDouble()).toString(),
-        latesCount.toString()
-    )
-    weeklyHours.add(week) //add the week list to the overall weeklyHours directory
 }
 
 fun nightShiftHours(name: String, empNum: String, data: MutableList<MutableList<Any>>){
@@ -337,76 +366,88 @@ fun nightShiftHours(name: String, empNum: String, data: MutableList<MutableList<
 
     var latesCount: Int = 0
 
-    //go through the in and out time arrays
-    for (day in inTimeF.indices) {
-        //create date, time, and datetime for each event
-        val inDateTime = LocalDateTime.parse(inTimeF[day][5].toString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-        val outDateTime = LocalDateTime.parse(outTimeF[day][5].toString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-
-        //create a LocalDateTime value for overtime start based on the date and shift
-        val shiftStart1 = inDateTime.toLocalDate().toString() + " " + "15:30:00"
-        val shiftStart = LocalDateTime.parse(shiftStart1, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-
-        //create a LocalDateTime value for overtime start based on the date and shift
-        val otStart1 = inDateTime.toLocalDate().plus(1, ChronoUnit.DAYS).toString() + " " + "02:00:00"
-        val otStart = LocalDateTime.parse(otStart1, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-
-        //total hours is the length from in time to out time for each day
-        val totHoursDay: Float = ((ChronoUnit.MINUTES.between(inDateTime, outDateTime) - 30).toFloat()) / 60
-        totHours.add(totHoursDay)
-
-        //create a list of important values about this shift
-        val shift: MutableList<String> = mutableListOf(
+    if (inTimeF.size != outTimeF.size){
+        val week: List<String> = listOf(
             empNum,
             name,
             "Night",
-            inDateTime.toLocalDate().toString(),
-            inDateTime.toLocalTime().toString(),
-            outDateTime.toLocalDate().toString(),
-            outDateTime.toLocalTime().toString()
+            "Missed Tap Not Rectified",
+            "Missed Tap Not Rectified",
+            "Missed Tap Not Rectified",
+            "Missed Tap Not Rectified"
         )
+        weeklyHours.add(week)
+    } else {
+        //go through the in and out time arrays
+        for (day in inTimeF.indices) {
+            //create date, time, and datetime for each event
+            val inDateTime = LocalDateTime.parse(inTimeF[day][5].toString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+            val outDateTime = LocalDateTime.parse(outTimeF[day][5].toString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME)
 
-        //calculate normal and overtime hours
-        if (outDateTime.isAfter(otStart)) { //if signed out after overtime start, normal is between in and otstart, ot is between otstart and out
-            val normHoursDay: Float = ((ChronoUnit.MINUTES.between(inDateTime, otStart) - 30).toFloat()) / 60
-            normHours.add(normHoursDay)
-            shift.add(quarterRound(normHoursDay.toDouble()).toString()) //add normal hours to shift info list
+            //create a LocalDateTime value for overtime start based on the date and shift
+            val shiftStart1 = inDateTime.toLocalDate().toString() + " " + "15:30:00"
+            val shiftStart = LocalDateTime.parse(shiftStart1, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
 
-            val otHoursDay: Float = (ChronoUnit.MINUTES.between(otStart, outDateTime).toFloat()) / 60
-            otHours.add(otHoursDay)
-            shift.add(quarterRound(otHoursDay.toDouble()).toString()) //add overtime hours to shift info list
-        } else { //shift ends before overtime starts, all hours are normal hours
-            val normHoursDay: Float = ((ChronoUnit.MINUTES.between(inDateTime, outDateTime) - 30).toFloat()) / 60
-            normHours.add(normHoursDay)
-            shift.add(quarterRound(normHoursDay.toDouble()).toString()) //add normal hours to shift info list
+            //create a LocalDateTime value for overtime start based on the date and shift
+            val otStart1 = inDateTime.toLocalDate().plus(1, ChronoUnit.DAYS).toString() + " " + "02:00:00"
+            val otStart = LocalDateTime.parse(otStart1, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
 
-            val otHoursDay = 0.0F
-            otHours.add(otHoursDay)
-            shift.add(quarterRound(otHoursDay.toDouble()).toString()) //add overtime hours to shift info list
+            //total hours is the length from in time to out time for each day
+            val totHoursDay: Float = ((ChronoUnit.MINUTES.between(inDateTime, outDateTime) - 30).toFloat()) / 60
+            totHours.add(totHoursDay)
+
+            //create a list of important values about this shift
+            val shift: MutableList<String> = mutableListOf(
+                empNum,
+                name,
+                "Night",
+                inDateTime.toLocalDate().toString(),
+                inDateTime.toLocalTime().toString(),
+                outDateTime.toLocalDate().toString(),
+                outDateTime.toLocalTime().toString()
+            )
+
+            //calculate normal and overtime hours
+            if (outDateTime.isAfter(otStart)) { //if signed out after overtime start, normal is between in and otstart, ot is between otstart and out
+                val normHoursDay: Float = ((ChronoUnit.MINUTES.between(inDateTime, otStart) - 30).toFloat()) / 60
+                normHours.add(normHoursDay)
+                shift.add(quarterRound(normHoursDay.toDouble()).toString()) //add normal hours to shift info list
+
+                val otHoursDay: Float = (ChronoUnit.MINUTES.between(otStart, outDateTime).toFloat()) / 60
+                otHours.add(otHoursDay)
+                shift.add(quarterRound(otHoursDay.toDouble()).toString()) //add overtime hours to shift info list
+            } else { //shift ends before overtime starts, all hours are normal hours
+                val normHoursDay: Float = ((ChronoUnit.MINUTES.between(inDateTime, outDateTime) - 30).toFloat()) / 60
+                normHours.add(normHoursDay)
+                shift.add(quarterRound(normHoursDay.toDouble()).toString()) //add normal hours to shift info list
+
+                val otHoursDay = 0.0F
+                otHours.add(otHoursDay)
+                shift.add(quarterRound(otHoursDay.toDouble()).toString()) //add overtime hours to shift info list
+            }
+            shift.add(quarterRound(totHoursDay.toDouble()).toString())
+
+            if (inDateTime.isAfter(shiftStart)) {
+                shift.add("Late")
+                latesCount++
+            } else {
+                shift.add("On Time")
+            }
+
+            shiftHours.add(shift) //add the shift list to the overall shiftHours directory
         }
-        shift.add(quarterRound(totHoursDay.toDouble()).toString())
-
-        if (inDateTime.isAfter(shiftStart)){
-            shift.add("Late")
-            latesCount ++
-        } else {
-            shift.add("On Time")
-        }
-
-        shiftHours.add(shift) //add the shift list to the overall shiftHours directory
+        //create a summary of this employee's total weekly hours
+        val week: List<String> = listOf(
+            empNum,
+            name,
+            "Night",
+            quarterRound(normHours.sum().toDouble()).toString(),
+            quarterRound(otHours.sum().toDouble()).toString(),
+            quarterRound(totHours.sum().toDouble()).toString(),
+            latesCount.toString()
+        )
+        weeklyHours.add(week) //add the week list to the overall weeklyHours directory
     }
-    //create a summary of this employee's total weekly hours
-    val week: List<String> = listOf(
-        empNum,
-        name,
-        "Night",
-        quarterRound(normHours.sum().toDouble()).toString(),
-        quarterRound(otHours.sum().toDouble()).toString(),
-        quarterRound(totHours.sum().toDouble()).toString(),
-        latesCount.toString()
-    )
-    weeklyHours.add(week) //add the week list to the overall weeklyHours directory
-
 }
 
 fun weekendShiftHours(name: String, empNum: String, data: MutableList<MutableList<Any>>){
@@ -423,89 +464,102 @@ fun weekendShiftHours(name: String, empNum: String, data: MutableList<MutableLis
 
     var latesCount: Int = 0
 
-    //go through the in and out time arrays
-    for (day in inTimeF.indices) {
-        //create date, time, and datetime for each event
-        val inDateTime = LocalDateTime.parse(inTimeF[day][5].toString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-        val outDateTime = LocalDateTime.parse(outTimeF[day][5].toString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-
-
-        val shiftStart: LocalDateTime = if (inDateTime.dayOfWeek == DayOfWeek.FRIDAY) {
-            val shiftStart1 = inDateTime.toLocalDate().toString() + " " + "07:00:00" //fridays are 7:00-19:30
-            val shiftStartFri = LocalDateTime.parse(shiftStart1, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-            shiftStartFri
-        } else {
-            val shiftStart1 = inDateTime.toLocalDate().toString() + " " + "06:00:00" //sat and sun are 6:00-6:30
-            val shiftStartEnd = LocalDateTime.parse(shiftStart1, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-            shiftStartEnd
-        }
-
-
-        val otStart: LocalDateTime = if (inDateTime.dayOfWeek == DayOfWeek.FRIDAY) {
-            val otStart1 = inDateTime.toLocalDate().toString() + " " + "19:30:00" //fridays are 7:00-19:30
-            val otStartFri = LocalDateTime.parse(otStart1, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-            otStartFri
-        } else {
-            val otStart1 = inDateTime.toLocalDate().toString() + " " + "18:30:00" //sat and sun are 6:00-6:30
-            val otStartEnd = LocalDateTime.parse(otStart1, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-            otStartEnd
-        }
-
-        //total hours is the length from in time to out time for each day
-        val totHoursDay: Float = ((ChronoUnit.MINUTES.between(inDateTime, outDateTime) - 30).toFloat()) / 60
-        totHours.add(totHoursDay)
-
-        //create a list of important values about this shift
-        val shift: MutableList<String> = mutableListOf(
+    if (inTimeF.size != outTimeF.size){
+        val week: List<String> = listOf(
             empNum,
             name,
             "Weekend",
-            inDateTime.toLocalDate().toString(),
-            inDateTime.toLocalTime().toString(),
-            outDateTime.toLocalDate().toString(),
-            outDateTime.toLocalTime().toString()
+            "Missed Tap Not Rectified",
+            "Missed Tap Not Rectified",
+            "Missed Tap Not Rectified",
+            "Missed Tap Not Rectified"
         )
+        weeklyHours.add(week)
+    } else {
+        //go through the in and out time arrays
+        for (day in inTimeF.indices) {
+            //create date, time, and datetime for each event
+            val inDateTime = LocalDateTime.parse(inTimeF[day][5].toString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+            val outDateTime = LocalDateTime.parse(outTimeF[day][5].toString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME)
 
-        //calculate normal and overtime hours
-        if (outDateTime.isAfter(otStart)) { //if signed out after overtime start, normal is between in and otstart, ot is between otstart and out
-            val normHoursDay: Float = ((ChronoUnit.MINUTES.between(inDateTime, otStart) - 30).toFloat()) / 60
-            normHours.add(normHoursDay)
-            shift.add(quarterRound(normHoursDay.toDouble()).toString()) //add normal hours to shift info list
 
-            val otHoursDay: Float = (ChronoUnit.MINUTES.between(otStart, outDateTime).toFloat()) / 60
-            otHours.add(otHoursDay)
-            shift.add(quarterRound(otHoursDay.toDouble()).toString()) //add overtime hours to shift info list
-        } else { //shift ends before overtime starts, all hours are normal hours
-            val normHoursDay: Float = ((ChronoUnit.MINUTES.between(inDateTime, outDateTime) - 30).toFloat()) / 60
-            normHours.add(normHoursDay)
-            shift.add(quarterRound(normHoursDay.toDouble()).toString()) //add normal hours to shift info list
+            val shiftStart: LocalDateTime = if (inDateTime.dayOfWeek == DayOfWeek.FRIDAY) {
+                val shiftStart1 = inDateTime.toLocalDate().toString() + " " + "07:00:00" //fridays are 7:00-19:30
+                val shiftStartFri = LocalDateTime.parse(shiftStart1, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+                shiftStartFri
+            } else {
+                val shiftStart1 = inDateTime.toLocalDate().toString() + " " + "06:00:00" //sat and sun are 6:00-6:30
+                val shiftStartEnd = LocalDateTime.parse(shiftStart1, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+                shiftStartEnd
+            }
 
-            val otHoursDay = 0.0F
-            otHours.add(otHoursDay)
-            shift.add(quarterRound(otHoursDay.toDouble()).toString()) //add overtime hours to shift info list
+
+            val otStart: LocalDateTime = if (inDateTime.dayOfWeek == DayOfWeek.FRIDAY) {
+                val otStart1 = inDateTime.toLocalDate().toString() + " " + "19:30:00" //fridays are 7:00-19:30
+                val otStartFri = LocalDateTime.parse(otStart1, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+                otStartFri
+            } else {
+                val otStart1 = inDateTime.toLocalDate().toString() + " " + "18:30:00" //sat and sun are 6:00-6:30
+                val otStartEnd = LocalDateTime.parse(otStart1, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+                otStartEnd
+            }
+
+            //total hours is the length from in time to out time for each day
+            val totHoursDay: Float = ((ChronoUnit.MINUTES.between(inDateTime, outDateTime) - 30).toFloat()) / 60
+            totHours.add(totHoursDay)
+
+            //create a list of important values about this shift
+            val shift: MutableList<String> = mutableListOf(
+                empNum,
+                name,
+                "Weekend",
+                inDateTime.toLocalDate().toString(),
+                inDateTime.toLocalTime().toString(),
+                outDateTime.toLocalDate().toString(),
+                outDateTime.toLocalTime().toString()
+            )
+
+            //calculate normal and overtime hours
+            if (outDateTime.isAfter(otStart)) { //if signed out after overtime start, normal is between in and otstart, ot is between otstart and out
+                val normHoursDay: Float = ((ChronoUnit.MINUTES.between(inDateTime, otStart) - 30).toFloat()) / 60
+                normHours.add(normHoursDay)
+                shift.add(quarterRound(normHoursDay.toDouble()).toString()) //add normal hours to shift info list
+
+                val otHoursDay: Float = (ChronoUnit.MINUTES.between(otStart, outDateTime).toFloat()) / 60
+                otHours.add(otHoursDay)
+                shift.add(quarterRound(otHoursDay.toDouble()).toString()) //add overtime hours to shift info list
+            } else { //shift ends before overtime starts, all hours are normal hours
+                val normHoursDay: Float = ((ChronoUnit.MINUTES.between(inDateTime, outDateTime) - 30).toFloat()) / 60
+                normHours.add(normHoursDay)
+                shift.add(quarterRound(normHoursDay.toDouble()).toString()) //add normal hours to shift info list
+
+                val otHoursDay = 0.0F
+                otHours.add(otHoursDay)
+                shift.add(quarterRound(otHoursDay.toDouble()).toString()) //add overtime hours to shift info list
+            }
+            shift.add(quarterRound(totHoursDay.toDouble()).toString())
+
+            if (inDateTime.isAfter(shiftStart)) {
+                shift.add("Late")
+                latesCount++
+            } else {
+                shift.add("On Time")
+            }
+
+            shiftHours.add(shift) //add the shift list to the overall shiftHours directory
         }
-        shift.add(quarterRound(totHoursDay.toDouble()).toString())
-
-        if (inDateTime.isAfter(shiftStart)){
-            shift.add("Late")
-            latesCount ++
-        } else {
-            shift.add("On Time")
-        }
-
-        shiftHours.add(shift) //add the shift list to the overall shiftHours directory
-    }
-    //create a summary of this employee's total weekly hours
-    val week: List<String> = listOf(
-        empNum,
-        name,
-        "Weekend",
-        quarterRound(normHours.sum().toDouble()).toString(),
-        quarterRound(otHours.sum().toDouble()).toString(),
-        quarterRound(totHours.sum().toDouble()).toString(),
-        latesCount.toString()
-    )
-    weeklyHours.add(week) //add the week list to the overall weeklyHours directory
+        //create a summary of this employee's total weekly hours
+        val week: List<String> = listOf(
+            empNum,
+            name,
+            "Weekend",
+            quarterRound(normHours.sum().toDouble()).toString(),
+            quarterRound(otHours.sum().toDouble()).toString(),
+            quarterRound(totHours.sum().toDouble()).toString(),
+            latesCount.toString()
+        )
+        weeklyHours.add(week) //add the week list to the overall weeklyHours directory
+     }
 }
 
 fun fivedayShiftHours(name: String, empNum: String, data: MutableList<MutableList<Any>>){
@@ -522,75 +576,89 @@ fun fivedayShiftHours(name: String, empNum: String, data: MutableList<MutableLis
 
     var latesCount: Int = 0
 
-    //go through the in and out time arrays
-    for (day in inTimeF.indices) {
-        //create date, time, and datetime for each event
-        val inDateTime = LocalDateTime.parse(inTimeF[day][5].toString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-        val outDateTime = LocalDateTime.parse(outTimeF[day][5].toString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-
-        //create a LocalDateTime value for overtime start based on the date and shift
-        val shiftStart1 = inDateTime.toLocalDate().toString() + " " + "05:45:00"
-        val shiftStart = LocalDateTime.parse(shiftStart1, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-
-        //create a LocalDateTime value for overtime start based on the date and shift
-        val otStart1 = inDateTime.toLocalDate().toString() + " " + "14:15:00"
-        val otStart = LocalDateTime.parse(otStart1, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-
-        //total hours is the length from in time to out time for each day
-        val totHoursDay: Float = ((ChronoUnit.MINUTES.between(inDateTime, outDateTime) - 30).toFloat()) / 60
-        totHours.add(totHoursDay)
-
-        //create a list of important values about this shift
-        val shift: MutableList<String> = mutableListOf(
+    if (inTimeF.size != outTimeF.size){
+        val week: List<String> = listOf(
             empNum,
             name,
             "Five Day",
-            inDateTime.toLocalDate().toString(),
-            inDateTime.toLocalTime().toString(),
-            outDateTime.toLocalDate().toString(),
-            outDateTime.toLocalTime().toString()
+            "Missed Tap Not Rectified",
+            "Missed Tap Not Rectified",
+            "Missed Tap Not Rectified",
+            "Missed Tap Not Rectified"
         )
+        weeklyHours.add(week)
+    } else {
 
-        //calculate normal and overtime hours
-        if (outDateTime.isAfter(otStart)) { //if signed out after overtime start, normal is between in and otstart, ot is between otstart and out
-            val normHoursDay: Float = ((ChronoUnit.MINUTES.between(inDateTime, otStart) - 30).toFloat()) / 60
-            normHours.add(normHoursDay)
-            shift.add(quarterRound(normHoursDay.toDouble()).toString()) //add normal hours to shift info list
+        //go through the in and out time arrays
+        for (day in inTimeF.indices) {
+            //create date, time, and datetime for each event
+            val inDateTime = LocalDateTime.parse(inTimeF[day][5].toString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+            val outDateTime = LocalDateTime.parse(outTimeF[day][5].toString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME)
 
-            val otHoursDay: Float = (ChronoUnit.MINUTES.between(otStart, outDateTime).toFloat()) / 60
-            otHours.add(otHoursDay)
-            shift.add(quarterRound(otHoursDay.toDouble()).toString()) //add overtime hours to shift info list
-        } else { //shift ends before overtime starts, all hours are normal hours
-            val normHoursDay: Float = ((ChronoUnit.MINUTES.between(inDateTime, outDateTime) - 30).toFloat()) / 60
-            normHours.add(normHoursDay)
-            shift.add(quarterRound(normHoursDay.toDouble()).toString()) //add normal hours to shift info list
+            //create a LocalDateTime value for overtime start based on the date and shift
+            val shiftStart1 = inDateTime.toLocalDate().toString() + " " + "05:45:00"
+            val shiftStart = LocalDateTime.parse(shiftStart1, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
 
-            val otHoursDay = 0.0F
-            otHours.add(otHoursDay)
-            shift.add(quarterRound(otHoursDay.toDouble()).toString()) //add overtime hours to shift info list
+            //create a LocalDateTime value for overtime start based on the date and shift
+            val otStart1 = inDateTime.toLocalDate().toString() + " " + "14:15:00"
+            val otStart = LocalDateTime.parse(otStart1, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+
+            //total hours is the length from in time to out time for each day
+            val totHoursDay: Float = ((ChronoUnit.MINUTES.between(inDateTime, outDateTime) - 30).toFloat()) / 60
+            totHours.add(totHoursDay)
+
+            //create a list of important values about this shift
+            val shift: MutableList<String> = mutableListOf(
+                empNum,
+                name,
+                "Five Day",
+                inDateTime.toLocalDate().toString(),
+                inDateTime.toLocalTime().toString(),
+                outDateTime.toLocalDate().toString(),
+                outDateTime.toLocalTime().toString()
+            )
+
+            //calculate normal and overtime hours
+            if (outDateTime.isAfter(otStart)) { //if signed out after overtime start, normal is between in and otstart, ot is between otstart and out
+                val normHoursDay: Float = ((ChronoUnit.MINUTES.between(inDateTime, otStart) - 30).toFloat()) / 60
+                normHours.add(normHoursDay)
+                shift.add(quarterRound(normHoursDay.toDouble()).toString()) //add normal hours to shift info list
+
+                val otHoursDay: Float = (ChronoUnit.MINUTES.between(otStart, outDateTime).toFloat()) / 60
+                otHours.add(otHoursDay)
+                shift.add(quarterRound(otHoursDay.toDouble()).toString()) //add overtime hours to shift info list
+            } else { //shift ends before overtime starts, all hours are normal hours
+                val normHoursDay: Float = ((ChronoUnit.MINUTES.between(inDateTime, outDateTime) - 30).toFloat()) / 60
+                normHours.add(normHoursDay)
+                shift.add(quarterRound(normHoursDay.toDouble()).toString()) //add normal hours to shift info list
+
+                val otHoursDay = 0.0F
+                otHours.add(otHoursDay)
+                shift.add(quarterRound(otHoursDay.toDouble()).toString()) //add overtime hours to shift info list
+            }
+            shift.add(quarterRound(totHoursDay.toDouble()).toString())
+
+            if (inDateTime.isAfter(shiftStart)) {
+                shift.add("Late")
+                latesCount++
+            } else {
+                shift.add("On Time")
+            }
+
+            shiftHours.add(shift) //add the shift list to the overall shiftHours directory
         }
-        shift.add(quarterRound(totHoursDay.toDouble()).toString())
-
-        if (inDateTime.isAfter(shiftStart)){
-            shift.add("Late")
-            latesCount ++
-        } else {
-            shift.add("On Time")
-        }
-
-        shiftHours.add(shift) //add the shift list to the overall shiftHours directory
-    }
-    //create a summary of this employee's total weekly hours
-    val week: List<String> = listOf(
-        empNum,
-        name,
-        "Five Day",
-        quarterRound(normHours.sum().toDouble()).toString(),
-        quarterRound(otHours.sum().toDouble()).toString(),
-        quarterRound(totHours.sum().toDouble()).toString(),
-        latesCount.toString()
-    )
-    weeklyHours.add(week) //add the week list to the overall weeklyHours directory
+        //create a summary of this employee's total weekly hours
+        val week: List<String> = listOf(
+            empNum,
+            name,
+            "Five Day",
+            quarterRound(normHours.sum().toDouble()).toString(),
+            quarterRound(otHours.sum().toDouble()).toString(),
+            quarterRound(totHours.sum().toDouble()).toString(),
+            latesCount.toString()
+        )
+        weeklyHours.add(week) //add the week list to the overall weeklyHours directory
+     }
 }
 
 fun makeExcel() {
@@ -692,7 +760,7 @@ fun makeExcel() {
     }
 
     //save the file to this location
-    val output = FileOutputStream("C:/Users/ophillips/Desktop/WeeklyTaps.xlsx")
+    val output = FileOutputStream("/home/pi/Desktop/WeeklyTaps.xlsx")
     xlWb.write(output)
 
     //close the workbook
@@ -714,7 +782,7 @@ fun sendEmail() {
     email.addTo("ophillips@toromont.com") //email address that the email will be sent to
     val attachment = EmailAttachment() //create an attachment for the email
     attachment.path =
-        "C:/Users/ophillips/Desktop/WeeklyTaps.xlsx" //attach the excel document created in the previous function
+        "/home/pi/Desktop/WeeklyTaps.xlsx" //attach the excel document created in the previous function
     email.attach(attachment) //attach the attachment to the email
     email.send() //send the email
 }
@@ -739,7 +807,7 @@ fun makeNewWorkbook(){
     val today = LocalDate.now().toString()
 
     //save the file to this location
-    val output = FileOutputStream("C:/Users/ophillips/Desktop/$today.xlsx") //TODO update file location
+    val output = FileOutputStream("/home/pi/Desktop/$today.xlsx") //TODO update file location
     xlWb.write(output)
 
     //close the workbook

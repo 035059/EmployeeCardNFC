@@ -54,7 +54,7 @@ class writeToExcelSupervisor(ID: String, name: String, empNum: String, status: S
 
     private fun fillExcel(data: List<String>, excelFile: String){
         //create file stream to excel
-        val myxlsx = FileInputStream("C:/Users/ophillips/Documents/$excelFile")   //TODO update to real doc location
+        val myxlsx = FileInputStream("/home/pi/Desktop/$excelFile")   //TODO update to real doc location
 
         //set workbook and sheet to populate
         val workbook = XSSFWorkbook(myxlsx)
@@ -72,7 +72,7 @@ class writeToExcelSupervisor(ID: String, name: String, empNum: String, status: S
         myxlsx.close()
 
         //set a spot to save the file
-        val output_file = FileOutputStream("C:/Users/ophillips/Documents/$excelFile")
+        val output_file = FileOutputStream("/home/pi/Desktop/$excelFile")
 
         //save the file to this locaiton
         workbook.write(output_file)

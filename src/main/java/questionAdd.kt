@@ -45,11 +45,11 @@ class questionAdd(title: String, ID: String, status: String) : JFrame() {
         val stdCols = arrayOf<Color>(catYellow, catYellow)
 
         val names = listOf("Yes", "No")
-        val width = IntArray(4) { 375 }
-        val height = intArrayOf(240, 240)
+        val width = IntArray(4) { 385 }
+        val height = intArrayOf(300, 300)
 
         val label = JLabel("ID not in Directory. Add to Directory?")
-        label.font = Font("Helvetica", Font.BOLD, 40)
+        label.font = Font("Helvetica", Font.BOLD, 30)
 
         class ButtonClickListener : ActionListener {
             override fun actionPerformed(e: ActionEvent) {
@@ -81,7 +81,7 @@ class questionAdd(title: String, ID: String, status: String) : JFrame() {
                 isResizable = true
                 actionCommand = names[index]
                 addActionListener(ButtonClickListener())
-                font = Font("Helvetica", Font.BOLD, 40)
+                font = Font("Helvetica", Font.BOLD, 30)
             }
         }
 

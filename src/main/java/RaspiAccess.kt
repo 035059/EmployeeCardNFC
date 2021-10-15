@@ -43,8 +43,8 @@ class RaspiAccess(title: String) : JFrame() {
         val stdCols = arrayOf<Color>(catYellow, catYellow, Color.green, Color.red)
 
         val names = listOf("No ID Card", "Supervisor Login", "IN", "OUT")
-        val width = IntArray(4) { 375 }
-        val height = intArrayOf(60, 60, 240, 240)
+        val width = IntArray(4) { 385 }
+        val height = intArrayOf(60, 60, 300, 300)
 
         val buttons = stdCols.mapIndexed { index, color ->
             JButton().apply {
@@ -55,7 +55,7 @@ class RaspiAccess(title: String) : JFrame() {
                 isResizable = true
                 actionCommand = names[index]
                 addActionListener(ButtonClickListener())
-                font = Font("Helvetica", Font.BOLD, 40)
+                font = Font("Helvetica", Font.BOLD, 30)
             }
         }
 

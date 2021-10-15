@@ -36,8 +36,10 @@ class emailSupervisor(name: String, empNum: String, status: String, supervisorEm
         val email = HtmlEmail() //create email type
         email.hostName = "smtp.gmail.com" //connect to gmail server
         email.setSmtpPort(587) //sets server type
+        email.isStartTLSEnabled = true
+        email.isStartTLSRequired = true
         email.setAuthentication("remantimesheets@gmail.com", "REMAN123") //username and password for email used to send
-        email.isSSLOnConnect = true //more server stuff (just found it on google)
+        //email.isSSLOnConnect = true //more server stuff (just found it on google)
         email.setFrom("remantimesheets@gmail.com") //set "from" for the email
         email.subject = "No ID Sign-${status} for $name" //email subject
         email.setMsg("Please log into the timeclock and input the following information:\n\nEmployee Name: $name\n\nEmployee Number: $empNum\n\nTime: $time\n\nDate: $date\n\nSign-In or Sign-Out: $status\n\nThank You\n\nthis email should go to $supervisorEmail") //email body text

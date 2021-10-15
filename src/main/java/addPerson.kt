@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021 Allin Demopolis
+ * Copyright (c) 2021 Owen Phillips, Allin Demopolis
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,7 +32,7 @@ import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import java.io.File
 
 fun createPerson(fullName: String, empNum: String, ID: String, shift: String){
-    val file = File("src/main/java/Directory.csv")
+    val file = File("/home/pi/Desktop/TimeCardProject/src/main/java/Directory.csv")
     val newRow = listOf(listOf(fullName,empNum,ID, shift))
     csvWriter().writeAll(newRow, file, append = true)
 }
@@ -46,28 +46,28 @@ class addPerson(title: String, ID: String, status: String) : JFrame(){
 
     private fun createUI(title: String, ID: String, status: String) {
         val header = JLabel("Please Fill In the Following Information")
-        header.font = Font("Helvetica", Font.BOLD, 40)
+        header.font = Font("Helvetica", Font.BOLD, 30)
         val label1 = JLabel("Full Name")
-        label1.font = Font("Helvetica", Font.BOLD, 32)
+        label1.font = Font("Helvetica", Font.BOLD, 18)
         val label2 = JLabel("Employee Number")
-        label2.font = Font("Helvetica", Font.BOLD, 32)
+        label2.font = Font("Helvetica", Font.BOLD, 18)
         val label3 = JLabel("Shift Type")
-        label3.font = Font("Helvetica", Font.BOLD, 32)
+        label3.font = Font("Helvetica", Font.BOLD, 18)
 
         val text1 = JTextField()
-        text1.font = Font("Helvetica", Font.PLAIN, 24)
+        text1.font = Font("Helvetica", Font.PLAIN, 18)
         val text2 = JTextField()
-        text2.font = Font("Helvetica", Font.PLAIN, 24)
+        text2.font = Font("Helvetica", Font.PLAIN, 18)
 
         val shifts: Array<String> = arrayOf("", "Day", "Night", "Weekend", "Five Day")
         val combo1 = JComboBox(shifts)
-        combo1.font = Font("Helvetica", Font.PLAIN, 24)
+        combo1.font = Font("Helvetica", Font.PLAIN, 18)
 
         val stdCols = arrayOf<Color>(Color.green, Color.red)
 
         val names = listOf("Submit", "Exit")
         val width = IntArray(4) { 120 }
-        val height = intArrayOf(60, 60)
+        val height = intArrayOf(50, 50)
 
         class ButtonClickListener : ActionListener {
             override fun actionPerformed(e: ActionEvent) {
@@ -107,7 +107,7 @@ class addPerson(title: String, ID: String, status: String) : JFrame(){
                 isResizable = true
                 actionCommand = names[index]
                 addActionListener(ButtonClickListener())
-                font = Font("Helvetica", Font.BOLD, 40)
+                font = Font("Helvetica", Font.BOLD, 30)
             }
         }
 

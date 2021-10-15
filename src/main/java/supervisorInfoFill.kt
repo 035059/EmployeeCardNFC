@@ -32,7 +32,7 @@ import java.io.File
 import javax.swing.*
 
 fun getShift(empNum: String): String {
-    val file: File = File("src/main/java/Directory.csv") //load directory
+    val file: File = File("/home/pi/Desktop/TimeCardProject/src/main/java/Directory.csv") //load directory
     val rows: List<List<String>> = csvReader().readAll(file)
     for (i in 0 until (rows.size)) { //go through each row and compare ID numbers
         if (rows[i][1] == empNum) {
@@ -57,29 +57,29 @@ fun getShift(empNum: String): String {
             header.font = Font("Helvetica", Font.BOLD, 24)
 
             val label1 = JLabel("Employee Name")
-            label1.font = Font("Helvetica", Font.PLAIN, 20)
+            label1.font = Font("Helvetica", Font.PLAIN, 18)
             val label2 = JLabel("Employee Number")
-            label2.font = Font("Helvetica", Font.PLAIN, 20)
+            label2.font = Font("Helvetica", Font.PLAIN, 18)
             val label3 = JLabel("Time in form hh:mm:ss (24 Hour Clock)")
-            label3.font = Font("Helvetica", Font.PLAIN, 20)
+            label3.font = Font("Helvetica", Font.PLAIN, 18)
             val label4 = JLabel("Date in form yyyy-mm-dd")
-            label4.font = Font("Helvetica", Font.PLAIN, 20)
+            label4.font = Font("Helvetica", Font.PLAIN, 18)
             val label5 = JLabel("Sign-In or Sign-Out")
-            label5.font = Font("Helvetica", Font.PLAIN, 20)
+            label5.font = Font("Helvetica", Font.PLAIN, 18)
 
             val text1 = JTextField()
-            text1.font = Font("Helvetica", Font.PLAIN, 20)
+            text1.font = Font("Helvetica", Font.PLAIN, 18)
             val text2 = JTextField()
-            text2.font = Font("Helvetica", Font.PLAIN, 20)
+            text2.font = Font("Helvetica", Font.PLAIN, 18)
             val text3 = JTextField()
-            text3.font = Font("Helvetica", Font.PLAIN, 20)
+            text3.font = Font("Helvetica", Font.PLAIN, 18)
             val text4 = JTextField()
-            text4.font = Font("Helvetica", Font.PLAIN, 20)
+            text4.font = Font("Helvetica", Font.PLAIN, 18)
 
             val radio1 = JRadioButton("In")
-            radio1.font = Font("Helvetica", Font.PLAIN, 20)
+            radio1.font = Font("Helvetica", Font.PLAIN, 16)
             val radio2 = JRadioButton("Out")
-            radio2.font = Font("Helvetica", Font.PLAIN, 20)
+            radio2.font = Font("Helvetica", Font.PLAIN, 16)
 
             val bg = ButtonGroup()
             bg.add(radio1)
@@ -89,7 +89,7 @@ fun getShift(empNum: String): String {
 
             val names = listOf("Submit", "Exit")
             val width = IntArray(4) { 120 }
-            val height = intArrayOf(60, 60)
+            val height = intArrayOf(50, 50)
 
             class ButtonClickListener : ActionListener {
                 override fun actionPerformed(e: ActionEvent) {
@@ -143,7 +143,7 @@ fun getShift(empNum: String): String {
                     isResizable = true
                     actionCommand = names[index]
                     addActionListener(ButtonClickListener())
-                    font = Font("Helvetica", Font.BOLD, 40)
+                    font = Font("Helvetica", Font.BOLD, 30)
                 }
             }
 
