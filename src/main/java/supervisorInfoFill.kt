@@ -32,7 +32,7 @@ import java.io.File
 import javax.swing.*
 
 fun getShift(empNum: String): String {
-    val file: File = File("/home/pi/Desktop/TimeCardProject/src/main/java/Directory.csv") //load directory
+    val file: File = File("/home/pi/Desktop/Directory.csv") //load directory
     val rows: List<List<String>> = csvReader().readAll(file)
     for (i in 0 until (rows.size)) { //go through each row and compare ID numbers
         if (rows[i][1] == empNum) {
@@ -58,7 +58,7 @@ fun getShift(empNum: String): String {
 
             val label1 = JLabel("Employee Name")
             label1.font = Font("Helvetica", Font.PLAIN, 18)
-            val label2 = JLabel("Employee Number")
+            val label2 = JLabel("4-Digit Employee Number")
             label2.font = Font("Helvetica", Font.PLAIN, 18)
             val label3 = JLabel("Time in form hh:mm:ss (24 Hour Clock)")
             label3.font = Font("Helvetica", Font.PLAIN, 18)
@@ -100,7 +100,7 @@ fun getShift(empNum: String): String {
                             var t3: String = text3.text
                             var t4: String = text4.text
                             if ((t1 == "") or (t2 == "") or (t3 == "") or (t4 == "") or ((!radio1.isSelected) and (!radio2.isSelected))) {
-                                val window = commentOK("Please Input All Information")
+                                val window = displayMessage("Please Input All Information")
                                 window.isAlwaysOnTop = true
                                 window.isVisible = true
                             } else {

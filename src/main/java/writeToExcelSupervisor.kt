@@ -43,7 +43,7 @@ class writeToExcelSupervisor(ID: String, name: String, empNum: String, status: S
         }
         else{
             var previousMonday: LocalDate = today.with(TemporalAdjusters.previous(DayOfWeek.MONDAY))
-            return "${previousMonday}.xlsx"
+            return previousMonday.toString()
         }
     }
 
@@ -54,7 +54,7 @@ class writeToExcelSupervisor(ID: String, name: String, empNum: String, status: S
 
     private fun fillExcel(data: List<String>, excelFile: String){
         //create file stream to excel
-        val myxlsx = FileInputStream("/home/pi/Desktop/$excelFile")   //TODO update to real doc location
+        val myxlsx = FileInputStream("/home/pi/Desktop/WeeklyData/$excelFile.xlsx")   //TODO update to real doc location
 
         //set workbook and sheet to populate
         val workbook = XSSFWorkbook(myxlsx)
@@ -72,15 +72,15 @@ class writeToExcelSupervisor(ID: String, name: String, empNum: String, status: S
         myxlsx.close()
 
         //set a spot to save the file
-        val output_file = FileOutputStream("/home/pi/Desktop/$excelFile")
+        val output_file = FileOutputStream("/home/pi/Desktop/WeeklyData/$excelFile.xlsx")
 
-        //save the file to this locaiton
+        //save the file to this location
         workbook.write(output_file)
 
         //close the file
         output_file.close()
 
-        val window = commentOK("${data[1]} Signed ${data[3]}")
+        val window = displayMessage("${data[1]} Signed ${data[3]}")
         window.isAlwaysOnTop = true
         window.isVisible = true
     }

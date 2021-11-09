@@ -139,12 +139,12 @@ fun readCardIn(Lib: CardDataIn.`SampleClass$Reader`): String{
 //go through the directory and look for card number
 fun checkDirectory(ID: String, status: String): String {
     if (ID == "0"){
-        val window = commentOK("No Card Detected")
+        val window = displayMessage("No Card Detected")
         window.isAlwaysOnTop = true
         window.isVisible = true
         return "in list"
     }
-    val file: File = File("/home/pi/Desktop/TimeCardProject/src/main/java/Directory.csv") //load directory
+    val file: File = File("/home/pi/Desktop/Directory.csv") //load directory
     val rows: List<List<String>> = csvReader().readAll(file)
     for (i in 0 until (rows.size)){ //go through each row and compare ID numbers
         if (rows[i][2] == ID){

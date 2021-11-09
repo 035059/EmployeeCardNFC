@@ -22,9 +22,13 @@
  * SOFTWARE.
  */
 import org.apache.commons.mail.EmailAttachment
+import org.apache.commons.mail.EmailException
 import org.apache.commons.mail.HtmlEmail
+import java.net.UnknownHostException
+import java.security.PrivilegedActionException
 import java.time.LocalDate
 import java.time.LocalTime
+import javax.mail.MessagingException
 
 class emailSupervisor(name: String, empNum: String, status: String, supervisorEmail: String) {
 
@@ -42,13 +46,37 @@ class emailSupervisor(name: String, empNum: String, status: String, supervisorEm
         //email.isSSLOnConnect = true //more server stuff (just found it on google)
         email.setFrom("remantimesheets@gmail.com") //set "from" for the email
         email.subject = "No ID Sign-${status} for $name" //email subject
-        email.setMsg("Please log into the timeclock and input the following information:\n\nEmployee Name: $name\n\nEmployee Number: $empNum\n\nTime: $time\n\nDate: $date\n\nSign-In or Sign-Out: $status\n\nThank You\n\nthis email should go to $supervisorEmail") //email body text
-        email.addTo("ophillips@toromont.com") //email address that the email will be sent to
-        email.send() //send the email
+        email.setMsg("An employee has signed in without an ID card.\n\nThe following information has been recorded in the logbook:\n\nEmployee Name: $name\n\nEmployee Number: $empNum\n\nTime: $time\n\nDate: $date\n\nSign-In or Sign-Out: $status\n\nThank You\n\nthis email should go to $supervisorEmail") //email body text
+        email.addTo(supervisorEmail) //email address that the email will be sent to
+        email.addCc("ophillips@toromont.com")
+        email.addCc("TStella@toromont.com")
 
-        val window = commentOK("Email Sent")
-        window.isAlwaysOnTop = true
-        window.isVisible = true
+        try{
+            email.send()
+
+            val window = displayMessage("Email Sent")
+            window.isAlwaysOnTop = true
+            window.isVisible = true
+
+        }catch(e: PrivilegedActionException){
+            val window = commentOK("Email Not Sent, Check Internet Connection")
+            window.isAlwaysOnTop = true
+            window.isVisible = true
+        }catch(e: EmailException){
+            val window = commentOK("Email Not Sent, Check Internet Connection")
+            window.isAlwaysOnTop = true
+            window.isVisible = true
+        }catch(e: MessagingException){
+            val window = commentOK("Email Not Sent, Check Internet Connection")
+            window.isAlwaysOnTop = true
+            window.isVisible = true
+        }catch(e: UnknownHostException){
+            val window = commentOK("Email Not Sent, Check Internet Connection")
+            window.isAlwaysOnTop = true
+            window.isVisible = true
+        }
+
+
     }
 
     val bink = sendEmail(name, empNum, status, supervisorEmail)

@@ -34,6 +34,7 @@ import javax.swing.JButton
 import javax.swing.JFrame
 import javax.swing.JLabel
 
+//basic form with only an "OK" button, used to display useful text. This works the exact same as the other forms but easier
 class commentOK (title: String): JFrame(){
 
     init {
@@ -44,7 +45,7 @@ class commentOK (title: String): JFrame(){
 
         val button = JButton().apply{
             text = "OK"
-            minimumSize = Dimension(120, 60)
+            minimumSize = Dimension(700, 300)
             isOpaque = true
             isResizable = true
             actionCommand = "OK"

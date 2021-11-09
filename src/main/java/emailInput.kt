@@ -44,7 +44,7 @@ class emailInput(title: String) : JFrame(){
         header.font = Font("Helvetica", Font.BOLD, 30)
         val label1 = JLabel("Full Name")
         label1.font = Font("Helvetica", Font.BOLD, 18)
-        val label2 = JLabel("Employee Number")
+        val label2 = JLabel("4-Digit Employee Number")
         label2.font = Font("Helvetica", Font.BOLD, 18)
         val label3 = JLabel("Sign-In or Sign-Out")
         label3.font = Font("Helvetica", Font.BOLD, 18)
@@ -88,7 +88,7 @@ class emailInput(title: String) : JFrame(){
                             if (sup == supervisors[i]) {supEmail = supervisorEmails[i]}
                         }
                         if ((nameID == "") or (empID == "") or (sup == "") or ((!radio1.isSelected) and (!radio2.isSelected))){
-                            val window = commentOK("Please Input All Information")
+                            val window = displayMessage("Please Input All Information")
                             window.isAlwaysOnTop = true
                             window.isVisible = true
                         }
@@ -97,9 +97,17 @@ class emailInput(title: String) : JFrame(){
                                 if (radio1.isSelected){ "In" }
                                 else if (radio2.isSelected){ "Out" }
                                 else{ "lets not get here eh?" }
-                            emailSupervisor(nameID, empID, r, supEmail)
-                            isVisible = false
-                            dispose()
+
+                            val shift = getShift(empID)
+                            if (shift == "no") {
+                                isVisible = false
+                                dispose()
+                            } else {
+                                writeToExcel("No ID", nameID, empID, r, shift)
+                                emailSupervisor(nameID, empID, r, supEmail)
+                                isVisible = false
+                                dispose()
+                            }
                         }
                     }
                     "Exit" -> {

@@ -64,7 +64,7 @@ class supervisorSignIn(title: String): JFrame() {
                             dispose()
                         }
                         else{
-                            val window = commentOK("Password Incorrect")
+                            val window = displayMessage("Password Incorrect")
                             window.isAlwaysOnTop = true
                             window.isVisible = true
                         }

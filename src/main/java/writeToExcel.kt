@@ -57,7 +57,7 @@ class writeToExcel(ID: String, name: String, empNum: String, status: String, shi
 
     private fun fillExcel(data: List<String>, excelFile: String){
         //create file stream to excel
-        val myxlsx = FileInputStream("/home/pi/Desktop/$excelFile.xlsx")   //TODO update to real doc location
+        val myxlsx = FileInputStream("/home/pi/Desktop/WeeklyData/$excelFile.xlsx")   //TODO update to real doc location
 
         //set workbook and sheet to populate
         val workbook = XSSFWorkbook(myxlsx)
@@ -75,7 +75,7 @@ class writeToExcel(ID: String, name: String, empNum: String, status: String, shi
         myxlsx.close()
 
         //set a spot to save the file
-        val output_file = FileOutputStream("/home/pi/Desktop/$excelFile.xlsx")
+        val output_file = FileOutputStream("/home/pi/Desktop/WeeklyData/$excelFile.xlsx")
 
         //save the file to this locaiton
         workbook.write(output_file)
@@ -83,7 +83,7 @@ class writeToExcel(ID: String, name: String, empNum: String, status: String, shi
         //close the file
         output_file.close()
 
-        val window = commentOK("${data[1]} Signed ${data[3]}")
+        val window = displayMessage("${data[1]} Signed ${data[3]}")
         window.isAlwaysOnTop = true
         window.isVisible = true
     }

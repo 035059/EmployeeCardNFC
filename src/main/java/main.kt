@@ -75,9 +75,13 @@ fun main() {
         println(dateTime)
 
         if((dateTime.toLocalTime().isAfter(startDayTime)) and (dateTime.toLocalTime().isBefore(endDayTime))){
+
             dailyCalcs()
+
         } else if ((dateTime.dayOfWeek == DayOfWeek.MONDAY) and (dateTime.toLocalTime().isAfter(startWeekTime)) and (dateTime.toLocalTime().isBefore(endWeekTime))){
+
             weeklyCalcs()
+
         }
 
         Thread.sleep(5_000)

@@ -23,17 +23,21 @@
  */
 
 import org.apache.commons.mail.EmailAttachment
+import org.apache.commons.mail.EmailException
 import org.apache.commons.mail.HtmlEmail
 import org.apache.poi.ss.usermodel.*
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.net.UnknownHostException
+import java.security.PrivilegedActionException
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.time.temporal.TemporalAdjusters
+import javax.mail.MessagingException
 
 /*
  * MIT License
@@ -67,7 +71,7 @@ fun readExcel(): MutableList<MutableList<Any>>{
     var previousMonday: LocalDate = today.with(TemporalAdjusters.previous(DayOfWeek.MONDAY))
     var fileName = "${previousMonday}.xlsx"
 
-    val myxlsx = FileInputStream("/home/pi/Desktop/$fileName")
+    val myxlsx = FileInputStream("/home/pi/Desktop/WeeklyData/$fileName")
 
     val workbook = XSSFWorkbook(myxlsx)
     val sheet = workbook.getSheetAt(0)
@@ -201,8 +205,10 @@ fun makeDailyExcel(missedList: MutableList<MutableList<String>>) {
         sheet1.autoSizeColumn(col)
     }
 
+    val today = LocalDate.now()
+    val fileName = "$today.xlsx"
     //save the file to this location
-    val output = FileOutputStream("/home/pi/Desktop/DailyMissed.xlsx") //TODO update this file path
+    val output = FileOutputStream("/home/pi/Desktop/DailyData/$fileName") //TODO update this file path
     xlWb.write(output)
 
     //close the workbook
@@ -211,6 +217,12 @@ fun makeDailyExcel(missedList: MutableList<MutableList<String>>) {
 }
 
 fun emailExcel() {
+
+    val today = LocalDate.now()
+    val fileName = "$today.xlsx"
+
+    //"ASibbald@toromont.com", "BBrkovich@toromont.com", "BHall@toromont.com", "DPitre@toromont.com", "GHanna@toromont.com", "LKhalil@toromont.com", "MFratelli@toromont.com", "MGuimont@toromont.com", "SLinhardt@toromont.com")
+
     //MUST NOT BE CONNECTED TO THE INTRANET
     val email = HtmlEmail() //create email type
     email.hostName = "smtp.gmail.com" //connect to gmail server
@@ -220,12 +232,37 @@ fun emailExcel() {
     email.setFrom("remantimesheets@gmail.com") //set "from" for the email
     email.subject = "Daily Missed Time Card Taps" //email subject
     email.setMsg("Please see the attached excel document of missed tap instances.\n\nCheck with the techs in the list and input their missed instance into the timeclock to ensure they get paid.") //email body text
-    email.addTo("ophillips@toromont.com") //email address that the email will be sent to //TODO update to supervisors
+    email.addTo("ASibbald@toromont.com")
+    email.addTo("BBrkovich@toromont.com")
+    email.addTo("MFratelli@toromont.com")
+    email.addTo("MGuimont@toromont.com")
+    email.addCc("ophillips@toromont.com") //email address that the email will be sent to //TODO update to supervisors
+    email.addCc("TStella@toromont.com")
     val attachment = EmailAttachment() //create an attachment for the email
     attachment.path =
-        "/home/pi/Desktop/DailyMissed.xlsx" //attach the excel document created in the previous function //TODO update file path
+        "/home/pi/Desktop/DailyData/$fileName" //attach the excel document created in the previous function //TODO update file path
     email.attach(attachment) //attach the attachment to the email
-    email.send() //send the email
+
+    try{
+        email.send()
+    }catch(e: PrivilegedActionException){
+        val window = commentOK("Email Not Sent, Check Internet Connection")
+        window.isAlwaysOnTop = true
+        window.isVisible = true
+    }catch(e: EmailException){
+        val window = commentOK("Email Not Sent, Check Internet Connection")
+        window.isAlwaysOnTop = true
+        window.isVisible = true
+    }catch(e: MessagingException){
+        val window = commentOK("Email Not Sent, Check Internet Connection")
+        window.isAlwaysOnTop = true
+        window.isVisible = true
+    }catch(e: UnknownHostException){
+        val window = commentOK("Email Not Sent, Check Internet Connection")
+        window.isAlwaysOnTop = true
+        window.isVisible = true
+    }
+
 }
 
 fun dailyCalcs(){
