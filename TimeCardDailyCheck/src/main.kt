@@ -35,6 +35,7 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 import java.time.temporal.ChronoUnit
 import java.time.temporal.TemporalAdjusters
 import javax.mail.MessagingException
@@ -91,8 +92,20 @@ fun readExcel(): MutableList<MutableList<Any>>{
 
     val dataLocalDateTime: MutableList<MutableList<Any>> = mutableListOf(mutableListOf())
     for (tap in excelData.indices){
-        var dateTime = LocalDateTime.parse(excelData[tap][6] + "T" + excelData[tap][5], DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-        dataLocalDateTime.add(mutableListOf(excelData[tap][0], excelData[tap][1], excelData[tap][2], excelData[tap][3], excelData[tap][4], dateTime))
+        try {
+            var dateTime =
+                LocalDateTime.parse(excelData[tap][6] + "T" + excelData[tap][5], DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+            dataLocalDateTime.add(
+                mutableListOf(
+                    excelData[tap][0],
+                    excelData[tap][1],
+                    excelData[tap][2],
+                    excelData[tap][3],
+                    excelData[tap][4],
+                    dateTime
+                )
+            )
+        } catch(e: DateTimeParseException){}
     }
 
     dataLocalDateTime.removeAt(0)

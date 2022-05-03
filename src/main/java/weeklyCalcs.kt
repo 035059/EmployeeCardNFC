@@ -38,6 +38,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 import java.time.temporal.ChronoUnit
 import java.time.temporal.TemporalAdjusters
 import javax.mail.MessagingException
@@ -78,7 +79,7 @@ fun readExcelWeek(): MutableList<MutableList<String>>{
     var previousMonday: LocalDate = today.with(TemporalAdjusters.previous(DayOfWeek.MONDAY))
     var fileName = "${previousMonday}.xlsx"
 
-    val myxlsx = FileInputStream("/home/pi/Desktop/WeeklyData/$fileName") //TODO
+    val myxlsx = FileInputStream("/home/pi/Desktop/WeeklyData/$fileName") //TODO /home/pi/Desktop/WeeklyData/$fileName
 
     val workbook = XSSFWorkbook(myxlsx)
     val sheet = workbook.getSheetAt(0)
@@ -95,7 +96,7 @@ fun readExcelWeek(): MutableList<MutableList<String>>{
             excelData[i-1][j] = cell.stringCellValue
         }
     }
-
+    println("data read")
     return excelData
 }
 
@@ -106,9 +107,20 @@ fun sortData(data: MutableList<MutableList<String>>): MutableList<MutableList<An
     val sortedData: MutableList<MutableList<Any>> = mutableListOf(mutableListOf())
 
     for (tap in data.indices){
-        var dateTime = LocalDateTime.parse(data[tap][6] + "T" + data[tap][5], DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-        dataLocalDateTime.add(mutableListOf(data[tap][0], data[tap][1], data[tap][2], data[tap][3], data[tap][4], dateTime))
-        localDateTimes.add(dateTime)
+        try {
+            var dateTime = LocalDateTime.parse(data[tap][6] + "T" + data[tap][5], DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+            dataLocalDateTime.add(
+                mutableListOf(
+                    data[tap][0],
+                    data[tap][1],
+                    data[tap][2],
+                    data[tap][3],
+                    data[tap][4],
+                    dateTime
+                )
+            )
+            localDateTimes.add(dateTime)
+        } catch(e: DateTimeParseException){ }
     }
 
     dataLocalDateTime.removeAt(0)
@@ -129,12 +141,12 @@ fun sortData(data: MutableList<MutableList<String>>): MutableList<MutableList<An
 
     sortedData.removeAt(0)
 
-
+    println("sorted")
     return sortedData
 }
 
 fun getName(empNum: String): String {
-    val file: File = File("/home/pi/Desktop/Directory.csv") //load directory //TODO
+    val file: File = File("/home/pi/Desktop/Directory.csv") //load directory //TODO /home/pi/Desktop/Directory.csv
     val rows: List<List<String>> = csvReader().readAll(file)
     for (i in 0 until (rows.size)) { //go through each row and compare ID numbers
         if (rows[i][1] == empNum) {
@@ -521,10 +533,10 @@ fun nightShiftHours(name: String, empNum: String, data: MutableList<MutableList<
             val otStart = LocalDateTime.parse(otStart1, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
 
             var inDateTime = inDateTime1
-//
-//            if (inDateTime1.isBefore(shiftStart)){
-//                inDateTime = shiftStart
-//            }
+
+            if (inDateTime1.isBefore(shiftStart)){
+                inDateTime = shiftStart
+            }
 
             //total hours is the length from in time to out time for each day
             val totHoursDay: Float = ((ChronoUnit.MINUTES.between(inDateTime, outDateTime) - 30).toFloat()) / 60
@@ -589,7 +601,7 @@ fun weekendShiftHours(name: String, empNum: String, data: MutableList<MutableLis
     val (inTime, outTime) = inOrOut(name, empNum, data)
 
     //remove duplicates
-    val (inTimeF, outTimeF) = removeDuplicatesNight(inTime, outTime)
+    val (inTimeF, outTimeF) = removeDuplicates(inTime, outTime)
 
     //initialize lists to be populated throughout function
     val normHours: MutableList<Float> = mutableListOf() //normal hours
@@ -686,7 +698,7 @@ fun weekendShiftHours(name: String, empNum: String, data: MutableList<MutableLis
             latesCount.toString()
         )
         weeklyHours.add(week) //add the week list to the overall weeklyHours directory
-     }
+    }
 }
 
 fun fivedayShiftHours(name: String, empNum: String, data: MutableList<MutableList<Any>>){
@@ -791,7 +803,115 @@ fun fivedayShiftHours(name: String, empNum: String, data: MutableList<MutableLis
             latesCount.toString()
         )
         weeklyHours.add(week) //add the week list to the overall weeklyHours directory
-     }
+    }
+}
+
+fun undefined(name: String, empNum: String, data: MutableList<MutableList<Any>>){
+    //separate ins and outs
+    val (inTime, outTime) = inOrOut(name, empNum, data)
+
+    //remove duplicates
+    val (inTimeF, outTimeF) = removeDuplicates(inTime, outTime)
+
+    //initialize lists to be populated throughout function
+    val normHours: MutableList<Float> = mutableListOf() //normal hours
+    val totHours: MutableList<Float> = mutableListOf() //total hours
+    val otHours: MutableList<Float> = mutableListOf() //overtime hours
+
+    var latesCount: Int = 0
+
+    if (inTimeF.size != outTimeF.size){
+        val week: List<String> = listOf(
+            empNum,
+            name,
+            "Undefined",
+            "Missed Tap Not Rectified",
+            "Missed Tap Not Rectified",
+            "Missed Tap Not Rectified",
+            "Missed Tap Not Rectified"
+        )
+        weeklyHours.add(week)
+    } else {
+
+        //go through the in and out time arrays
+        for (day in inTimeF.indices) {
+            //create date, time, and datetime for each event
+            val inDateTime1 = LocalDateTime.parse(inTimeF[day][5].toString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+            val outDateTime = LocalDateTime.parse(outTimeF[day][5].toString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+
+            //create a LocalDateTime value for overtime start based on the date and shift
+            val shiftStart1 = inDateTime1.toLocalDate().toString() + " " + "05:45:00"
+            val shiftStart = LocalDateTime.parse(shiftStart1, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+
+            //create a LocalDateTime value for overtime start based on the date and shift
+            val otStart1 = inDateTime1.toLocalDate().toString() + " " + "14:15:00"
+            val otStart = LocalDateTime.parse(otStart1, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+
+            var inDateTime = inDateTime1
+
+//            if (inDateTime1.isBefore(shiftStart)){
+//                inDateTime = shiftStart
+//            }
+
+            //total hours is the length from in time to out time for each day
+            val totHoursDay: Float = ((ChronoUnit.MINUTES.between(inDateTime, outDateTime) - 30).toFloat()) / 60
+            totHours.add(quarterRound(totHoursDay.toDouble()).toFloat())
+
+            //create a list of important values about this shift
+            val shift: MutableList<String> = mutableListOf(
+                empNum,
+                name,
+                "Undefined",
+                inDateTime.toLocalDate().toString(),
+                inDateTime.toLocalTime().toString(),
+                outDateTime.toLocalDate().toString(),
+                outDateTime.toLocalTime().toString()
+            )
+
+            //calculate normal and overtime hours
+//            if (outDateTime.isAfter(otStart)) { //if signed out after overtime start, normal is between in and otstart, ot is between otstart and out
+//                val normHoursDay: Float = ((ChronoUnit.MINUTES.between(inDateTime, otStart) - 30).toFloat()) / 60
+//                normHours.add(quarterRound(normHoursDay.toDouble()).toFloat())
+//                shift.add(quarterRound(normHoursDay.toDouble()).toString()) //add normal hours to shift info list
+//
+//                val otHoursDay: Float = (ChronoUnit.MINUTES.between(otStart, outDateTime).toFloat()) / 60
+//                otHours.add(quarterRound(otHoursDay.toDouble()).toFloat())
+//                shift.add(quarterRound(otHoursDay.toDouble()).toString()) //add overtime hours to shift info list
+//            } else { //shift ends before overtime starts, all hours are normal hours
+//                val normHoursDay: Float = ((ChronoUnit.MINUTES.between(inDateTime, outDateTime) - 30).toFloat()) / 60
+//                normHours.add(quarterRound(normHoursDay.toDouble()).toFloat())
+//                shift.add(quarterRound(normHoursDay.toDouble()).toString()) //add normal hours to shift info list
+//
+//                val otHoursDay = 0.0F
+//                otHours.add(otHoursDay)
+//                shift.add(quarterRound(otHoursDay.toDouble()).toString()) //add overtime hours to shift info list
+//            }
+            shift.add(quarterRound(totHoursDay.toDouble()).toString())
+            shift.add("0.0")
+            shift.add(quarterRound(totHoursDay.toDouble()).toString())
+
+//            if (inDateTime.isAfter(shiftStart)) {
+//                shift.add("Late")
+//                latesCount++
+//            } else {
+//                shift.add("On Time")
+//            }
+            shift.add("On Time")
+
+            shiftHours.add(shift) //add the shift list to the overall shiftHours directory
+        }
+        //create a summary of this employee's total weekly hours
+        val week: List<String> = listOf(
+            empNum,
+            name,
+            "Undefined",
+            quarterRound(totHours.sum().toDouble()).toString(),
+            "0.0",
+            quarterRound(totHours.sum().toDouble()).toString(),
+            latesCount.toString()
+        )
+        weeklyHours.add(week) //add the week list to the overall weeklyHours directory
+    }
 }
 
 fun makeExcel(sortedWeekly: List<List<String>>, sortedShift: List<List<String>>) {
@@ -898,7 +1018,7 @@ fun makeExcel(sortedWeekly: List<List<String>>, sortedShift: List<List<String>>)
     var fileName = "${previousMonday}WeeklyCalcs.xlsx"
 
     //save the file to this location
-    val output = FileOutputStream("/home/pi/Desktop/WeeklyCalcs/$fileName") //TODO
+    val output = FileOutputStream("/home/pi/Desktop/WeeklyCalcs/$fileName") //TODO /home/pi/Desktop/WeeklyCalcs/$fileName
     xlWb.write(output)
 
     //close the workbook
@@ -907,7 +1027,7 @@ fun makeExcel(sortedWeekly: List<List<String>>, sortedShift: List<List<String>>)
 }
 
 //sends the excel document as an email
-fun sendEmail() {
+fun sendEmail(location: String) {
 
     val today = LocalDate.now()
     var previousMonday: LocalDate = today.with(TemporalAdjusters.previous(DayOfWeek.MONDAY))
@@ -920,33 +1040,33 @@ fun sendEmail() {
     email.setAuthentication("remantimesheets@gmail.com", "REMAN123") //username and password for email used to send
     email.isSSLOnConnect = true //more server stuff (just found it on google)
     email.setFrom("remantimesheets@gmail.com") //set "from" for the email
-    email.subject = "Weekly In and Out Times" //email subject
+    email.subject = "$location Weekly In and Out Times" //email subject
     email.setMsg("Please see the attached excel document of weekly in and out times for each tech.") //email body text
     email.addTo("ophillips@toromont.com") //email address that the email will be sent to
     email.addTo("GSgrignuoli@toromont.com")
     val attachment = EmailAttachment() //create an attachment for the email
     attachment.path =
-        "/home/pi/Desktop/WeeklyCalcs/$fileName" //attach the excel document created in the previous function //TODO
+        "/home/pi/Desktop/WeeklyCalcs/$fileName" //attach the excel document created in the previous function //TODO /home/pi/Desktop/WeeklyCalcs/$fileName
     email.attach(attachment) //attach the attachment to the email
 
     try{
         email.send()
     }catch(e: PrivilegedActionException){
-        val window = commentOK("Email Not Sent, Check Internet Connection")
-        window.isAlwaysOnTop = true
-        window.isVisible = true
+//        val window = commentOK("Email Not Sent, Check Internet Connection")
+//        window.isAlwaysOnTop = true
+//        window.isVisible = true
     }catch(e: EmailException){
-        val window = commentOK("Email Not Sent, Check Internet Connection")
-        window.isAlwaysOnTop = true
-        window.isVisible = true
+//        val window = commentOK("Email Not Sent, Check Internet Connection")
+//        window.isAlwaysOnTop = true
+//        window.isVisible = true
     }catch(e: MessagingException){
-        val window = commentOK("Email Not Sent, Check Internet Connection")
-        window.isAlwaysOnTop = true
-        window.isVisible = true
+//        val window = commentOK("Email Not Sent, Check Internet Connection")
+//        window.isAlwaysOnTop = true
+//        window.isVisible = true
     }catch(e: UnknownHostException){
-        val window = commentOK("Email Not Sent, Check Internet Connection")
-        window.isAlwaysOnTop = true
-        window.isVisible = true
+//        val window = commentOK("Email Not Sent, Check Internet Connection")
+//        window.isAlwaysOnTop = true
+//        window.isVisible = true
     }
 
 }
@@ -956,7 +1076,7 @@ fun makeNewWorkbook(){
         arrayOf("cardID", "Name", "empNum", "Status", "Shift", "Time", "Date")
 
     val xlWb = XSSFWorkbook() //create a workbook with name xlWb
-    val sheet1 = xlWb.createSheet() //create sheet1 withing the workbook
+    val sheet1 = xlWb.createSheet() //create sheet1 within the workbook
 
     //create rows to be filled by headers
     val headerRow1 = sheet1.createRow(0)
@@ -971,14 +1091,14 @@ fun makeNewWorkbook(){
     val today = LocalDate.now().toString()
 
     //save the file to this location
-    val output = FileOutputStream("/home/pi/Desktop/WeeklyData/$today.xlsx") //TODO update file location
+    val output = FileOutputStream("/home/pi/Desktop/WeeklyData/$today.xlsx") //TODO update file location /home/pi/Desktop/WeeklyData/$today.xlsx
     xlWb.write(output)
 
     //close the workbook
     xlWb.close()
 }
 
-fun weeklyCalcs (){ //TODO
+fun weeklyCalcs (){ //TODO fun weeklyCalcs (){
 
     val data = readExcelWeek()
 
@@ -993,6 +1113,7 @@ fun weeklyCalcs (){ //TODO
             "Night" -> nightShiftHours(employeeList[emp][0], employeeList[emp][1], sortedData)
             "Weekend" -> weekendShiftHours(employeeList[emp][0], employeeList[emp][1], sortedData)
             "Five Day" -> fivedayShiftHours(employeeList[emp][0], employeeList[emp][1], sortedData)
+            "Undefined" -> undefined(employeeList[emp][0], employeeList[emp][1], sortedData)
             else -> println("Uh Oh")
         }
     }
@@ -1002,8 +1123,14 @@ fun weeklyCalcs (){ //TODO
 
     makeExcel(sortedWeekly, sortedShift)
 
-    sendEmail()
+    val file = File("/home/pi/Desktop/Location.csv") //TODO /home/pi/Desktop/Location.csv
+    val loc = csvReader().readAll(file)
+
+    sendEmail(loc[0][0])
 
     makeNewWorkbook()
+
+    weeklyHours.clear()
+    shiftHours.clear()
 
 }

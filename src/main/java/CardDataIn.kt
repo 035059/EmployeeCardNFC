@@ -30,7 +30,7 @@ import java.io.File
 /*
  * MIT License
  *
- * Copyright (c) 2021 Allin Dempoopolis
+ * Copyright (c) 2021 Allin Demopolis
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal

@@ -22,11 +22,13 @@
  * SOFTWARE.
  */
 
+import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import org.apache.commons.mail.EmailAttachment
 import org.apache.commons.mail.EmailException
 import org.apache.commons.mail.HtmlEmail
 import org.apache.poi.ss.usermodel.*
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
+import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.net.UnknownHostException
@@ -35,6 +37,7 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 import java.time.temporal.ChronoUnit
 import java.time.temporal.TemporalAdjusters
 import javax.mail.MessagingException
@@ -91,8 +94,20 @@ fun readExcel(): MutableList<MutableList<Any>>{
 
     val dataLocalDateTime: MutableList<MutableList<Any>> = mutableListOf(mutableListOf())
     for (tap in excelData.indices){
-        var dateTime = LocalDateTime.parse(excelData[tap][6] + "T" + excelData[tap][5], DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-        dataLocalDateTime.add(mutableListOf(excelData[tap][0], excelData[tap][1], excelData[tap][2], excelData[tap][3], excelData[tap][4], dateTime))
+        try {
+            var dateTime =
+                LocalDateTime.parse(excelData[tap][6] + "T" + excelData[tap][5], DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+            dataLocalDateTime.add(
+                mutableListOf(
+                    excelData[tap][0],
+                    excelData[tap][1],
+                    excelData[tap][2],
+                    excelData[tap][3],
+                    excelData[tap][4],
+                    dateTime
+                )
+            )
+        } catch(e: DateTimeParseException){}
     }
 
     dataLocalDateTime.removeAt(0)
@@ -216,7 +231,7 @@ fun makeDailyExcel(missedList: MutableList<MutableList<String>>) {
 
 }
 
-fun emailExcel() {
+fun emailExcel(location: String) {
 
     val today = LocalDate.now()
     val fileName = "$today.xlsx"
@@ -230,12 +245,12 @@ fun emailExcel() {
     email.setAuthentication("remantimesheets@gmail.com", "REMAN123") //username and password for email used to send
     email.isSSLOnConnect = true //more server stuff (just found it on google)
     email.setFrom("remantimesheets@gmail.com") //set "from" for the email
-    email.subject = "Daily Missed Time Card Taps" //email subject
+    email.subject = "$location Daily Missed Time Card Taps" //email subject
     email.setMsg("Please see the attached excel document of missed tap instances.\n\nCheck with the techs in the list and input their missed instance into the timeclock to ensure they get paid.") //email body text
     email.addTo("ASibbald@toromont.com")
     email.addTo("BBrkovich@toromont.com")
     email.addTo("MFratelli@toromont.com")
-    email.addTo("MGuimont@toromont.com")
+    email.addTo("RFernandez@toromont.com")
     email.addCc("ophillips@toromont.com") //email address that the email will be sent to //TODO update to supervisors
     email.addCc("TStella@toromont.com")
     val attachment = EmailAttachment() //create an attachment for the email
@@ -283,10 +298,13 @@ fun dailyCalcs(){
         }
     }
 
+    val file = File("/home/pi/Desktop/Location.csv") //TODO /home/pi/Desktop/Location.csv
+    val loc = csvReader().readAll(file)
+
     if (missedList.size > 1){
         missedList.removeAt(0)
         makeDailyExcel(missedList)
-        emailExcel()
+        emailExcel(loc[0][0])
     }
 
 }

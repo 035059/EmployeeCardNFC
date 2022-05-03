@@ -65,8 +65,8 @@ class emailInput(title: String) : JFrame(){
         bg.add(radio1)
         bg.add(radio2)
 
-        val supervisors: Array<String> = arrayOf("", "Andrew Sibbald", "Bob Brkovich", "Bruce Hall", "Dan Pitre", "Guirgues Hanna", "Laith Khalil", "Mark Fratelli", "Mathieu Guimont", "Steve Linhardt")
-        val supervisorEmails: Array<String> = arrayOf("", "ASibbald@toromont.com", "BBrkovich@toromont.com", "BHall@toromont.com", "DPitre@toromont.com", "GHanna@toromont.com", "LKhalil@toromont.com", "MFratelli@toromont.com", "MGuimont@toromont.com", "SLinhardt@toromont.com")
+        val supervisors: Array<String> = arrayOf("", "Andrew Sibbald", "Bob Brkovich", "Nam Duong", "Bruce Hall", "Dan Pitre", "Guirgues Hanna", "Laith Khalil", "Ricardo Fernandez", "Mark Fratelli")
+        val supervisorEmails: Array<String> = arrayOf("", "ASibbald@toromont.com", "BBrkovich@toromont.com", "NDuong@toromont.com", "BHall@toromont.com", "DPitre@toromont.com", "GHanna@toromont.com", "LKhalil@toromont.com", "RFernandez@toromont.com", "MFratelli@toromont.com")
         val combo1 = JComboBox(supervisors)
         combo1.font = Font("Helvetica", Font.PLAIN, 16)
 

@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+import com.pi4j.io.gpio.GpioFactory
+import com.pi4j.io.gpio.PinState
+import com.pi4j.io.gpio.RaspiPin
 import java.awt.EventQueue
 import java.time.DayOfWeek
 import java.time.LocalDateTime
@@ -57,6 +60,12 @@ fun main() {
     //TODO modify to get data from multiple files
 */
 
+    val gpio = GpioFactory.getInstance()
+
+    val pin = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_07, "Signal", PinState.LOW)
+
+    pin.setShutdownOptions(true, PinState.LOW)
+
     val windowTitle = "Test"
     val window = RaspiAccess(windowTitle)
     window.isAlwaysOnTop = true
@@ -69,10 +78,13 @@ fun main() {
     val startWeekTime = LocalTime.parse("02:00:00", DateTimeFormatter.ISO_LOCAL_TIME)
     val endWeekTime = LocalTime.parse("02:00:05.02", DateTimeFormatter.ISO_LOCAL_TIME)
 
+
     val i = 0
     while (i<1){
         val dateTime = LocalDateTime.now()
         println(dateTime)
+
+        checkBuzzer(dateTime, pin)
 
         if((dateTime.toLocalTime().isAfter(startDayTime)) and (dateTime.toLocalTime().isBefore(endDayTime))){
 
